@@ -6,7 +6,7 @@ import Topbar from "@/components/layout/Topbar";
 
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
-  if (!session) redirect("/login");
+  if (!session?.user?.id) redirect("/login");
 
   const usuario = await db.usuario.findUnique({
     where: { id: session.user.id },
