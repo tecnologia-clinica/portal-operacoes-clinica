@@ -2,8 +2,8 @@
 
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
-const REALIZADO = 247;
-const META = 260;
+const REALIZADO = 288; // estimado: 24 cirurgias × ticket médio est. (dado de mai)
+const META = 340;
 const PCT = Math.round((REALIZADO / META) * 100);
 
 const DATA = [
@@ -15,7 +15,7 @@ export default function DonutMeta() {
   return (
     <div className="bg-white rounded-2xl p-5 flex flex-col" style={{ border: "1px solid #E8DDD0" }}>
       <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: "#9A8570" }}>
-        Meta receita junho
+        Receita est. vs meta
       </p>
       <p className="text-xs mb-3" style={{ color: "#B8A898" }}>R$ {REALIZADO}k de R$ {META}k</p>
 

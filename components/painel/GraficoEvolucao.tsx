@@ -12,13 +12,16 @@ import {
   Legend,
 } from "recharts";
 
+// Leads: Kommo CRM export 30/06/2026 (completo)
+// Cirurgias: Analise Estrategica sazonalidade (Jun = dado incompleto)
+// Consultas: Relatorio Procedimentos (Jun = dado incompleto)
 const DATA = [
-  { mes: "Jan", leads: 142, consultas: 31, cirurgias: 18, receita: 198 },
-  { mes: "Fev", leads: 155, consultas: 34, cirurgias: 20, receita: 215 },
-  { mes: "Mar", leads: 168, consultas: 37, cirurgias: 21, receita: 228 },
-  { mes: "Abr", leads: 172, consultas: 36, cirurgias: 19, receita: 204 },
-  { mes: "Mai", leads: 181, consultas: 40, cirurgias: 23, receita: 241 },
-  { mes: "Jun", leads: 187, consultas: 43, cirurgias: 22, receita: 247 },
+  { mes: "Jan", leads: 757,  consultas: 28, cirurgias: 36 },
+  { mes: "Fev", leads: 1207, consultas: 24, cirurgias: 42 },
+  { mes: "Mar", leads: 933,  consultas: 25, cirurgias: 57 },
+  { mes: "Abr", leads: 1234, consultas: 21, cirurgias: 40 },
+  { mes: "Mai", leads: 1152, consultas: 20, cirurgias: 24 },
+  { mes: "Jun", leads: 726,  consultas: null, cirurgias: null },
 ];
 
 const TOOLTIP_STYLE = {
@@ -32,16 +35,21 @@ const TOOLTIP_STYLE = {
 export default function GraficoEvolucao() {
   return (
     <div className="bg-white rounded-2xl p-5" style={{ border: "1px solid #E8DDD0" }}>
-      <div className="mb-4">
-        <p className="text-sm font-semibold" style={{ color: "#2C1810" }}>Evolução mensal</p>
-        <p className="text-xs mt-0.5" style={{ color: "#9A8570" }}>Janeiro — Junho 2026</p>
+      <div className="mb-4 flex items-start justify-between">
+        <div>
+          <p className="text-sm font-semibold" style={{ color: "#2C1810" }}>Evolução mensal</p>
+          <p className="text-xs mt-0.5" style={{ color: "#9A8570" }}>Janeiro — Junho 2026 · Kommo CRM + Analise Estratégica</p>
+        </div>
+        <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: "rgba(200,149,42,0.1)", color: "#9A8570" }}>
+          * cirurgias/consultas Jun incompleto
+        </span>
       </div>
       <ResponsiveContainer width="100%" height={260}>
         <ComposedChart data={DATA} margin={{ top: 4, right: 4, left: -16, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#F0E8DD" />
           <XAxis dataKey="mes" tick={{ fontSize: 11, fill: "#9A8570" }} axisLine={false} tickLine={false} />
-          <YAxis yAxisId="left" tick={{ fontSize: 11, fill: "#9A8570" }} axisLine={false} tickLine={false} />
-          <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: "#9A8570" }} axisLine={false} tickLine={false} />
+          <YAxis yAxisId="left" tick={{ fontSize: 11, fill: "#9A8570" }} axisLine={false} tickLine={false} domain={[0, 1400]} />
+          <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: "#9A8570" }} axisLine={false} tickLine={false} domain={[0, 70]} />
           <Tooltip contentStyle={TOOLTIP_STYLE} />
           <Legend wrapperStyle={{ fontSize: 11, paddingTop: 12 }} />
           <Bar yAxisId="left" dataKey="leads" name="Leads" fill="#E8DDD0" radius={[3, 3, 0, 0]} />

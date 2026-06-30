@@ -3,13 +3,14 @@ import GraficoEvolucao from "@/components/painel/GraficoEvolucao";
 import GraficoReceita from "@/components/painel/GraficoReceita";
 import DonutMeta from "@/components/painel/DonutMeta";
 
+// Fonte: Diagnóstico Comercial, Kommo 30/06, Dr José Cury Maio26 (ads)
 const METRICAS_RAPIDAS = [
-  { label: "CAC médio",              valor: "R$ 485",  icon: "◎" },
-  { label: "Conv. consulta→cirurgia",valor: "51%",     icon: "⟶" },
-  { label: "Ocupação agenda",        valor: "74%",     icon: "▦" },
-  { label: "NPS",                    valor: "72",      icon: "★" },
-  { label: "Cancelamentos",          valor: "3",       icon: "✕" },
-  { label: "Retornos pós-op",        valor: "18 / 22", icon: "↩" },
+  { label: "Conv. lead→cirurgia",    valor: "0.53%",   icon: "⟶" },
+  { label: "CAC ads (mai)",          valor: "~R$ 730", icon: "◎" },
+  { label: "Lead frio (jun)",        valor: "64%",     icon: "▦" },
+  { label: "Resp. média (jun)",      valor: "4 min",   icon: "★" },
+  { label: "Cancelados (jun)",       valor: "50",      icon: "✕" },
+  { label: "Leads quentes (jun)",    valor: "3",       icon: "↩" },
 ];
 
 export default function PainelPage() {
@@ -20,7 +21,7 @@ export default function PainelPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold" style={{ color: "#2C1810" }}>Painel Executivo</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#9A8570" }}>Junho 2026 — visão consolidada</p>
+          <p className="text-sm mt-0.5" style={{ color: "#9A8570" }}>Junho 2026 · leads completo · clínico parcial</p>
         </div>
         <span className="text-xs font-medium px-3 py-1 rounded-full" style={{ backgroundColor: "rgba(200,149,42,0.12)", color: "#A67A1E" }}>
           Junho 2026
@@ -30,39 +31,43 @@ export default function PainelPage() {
       {/* ── KPI cards ── */}
       <div className="grid grid-cols-4 gap-4">
 
-        {/* Card destaque — Receita */}
+        {/* Card destaque — Leads junho (dado completo via Kommo 30/06) */}
         <div
           className="rounded-2xl p-5 flex flex-col justify-between row-span-1"
-          style={{ backgroundColor: "#1A0E06", border: "1px solid rgba(200,149,42,0.25)", minHeight: 148 }}
+          style={{
+            background: "linear-gradient(135deg, #C8952A 0%, #A67520 60%, #7C5518 100%)",
+            minHeight: 148,
+          }}
         >
           <div className="flex items-start justify-between">
-            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#6B5030" }}>
-              Receita bruta
+            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.6)" }}>
+              Leads — Junho
             </p>
-            <span className="text-lg" style={{ color: "#C8952A" }}>$</span>
+            <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.9)" }}>
+              completo
+            </span>
           </div>
           <div>
-            <p className="text-4xl font-bold tracking-tight leading-none mt-3" style={{ color: "#F0E6D8" }}>
-              R$ 247k
+            <p className="text-4xl font-bold tracking-tight leading-none mt-3" style={{ color: "#fff" }}>
+              726
             </p>
             <div className="flex items-center gap-2 mt-3">
-              <span className="text-xs font-semibold px-1.5 py-0.5 rounded" style={{ color: "#4ADE80", backgroundColor: "rgba(74,222,128,0.12)" }}>
-                ▲ 2.5%
+              <span className="text-xs font-semibold px-1.5 py-0.5 rounded" style={{ color: "#fff", backgroundColor: "rgba(0,0,0,0.2)" }}>
+                ▼ 37% vs mai
               </span>
-              <span className="text-xs" style={{ color: "#5C4030" }}>vs maio</span>
             </div>
-            <p className="text-xs mt-2" style={{ color: "#4A3020" }}>Meta: R$ 260k · 95% atingido</p>
+            <p className="text-xs mt-2" style={{ color: "rgba(255,255,255,0.55)" }}>0.53% conv. lead→cirurgia · Kommo 30/06</p>
           </div>
         </div>
 
-        {/* Leads */}
-        <KPICard label="Leads recebidos" valor="187" delta={3.3} sub="Tráfego pago + orgânico" icon="◈" />
+        {/* Cirurgias — maio (dado de junho incompleto) */}
+        <KPICard label="Cirurgias — Maio" valor="24" delta={-40} sub="Jun incompleto · pico: Mar (57)" icon="✦" />
 
-        {/* Consultas */}
-        <KPICard label="Consultas agendadas" valor="43" delta={7.5} sub="23% de conversão lead→consulta" icon="◷" />
+        {/* Consultas — maio (dado de junho incompleto) */}
+        <KPICard label="Consultas — Maio" valor="20" delta={-4.8} sub="Jun incompleto · procedimentos CSV" icon="◷" />
 
-        {/* Cirurgias */}
-        <KPICard label="Cirurgias realizadas" valor="22" delta={-4.3} sub="Ticket médio R$ 11.227" icon="✦" />
+        {/* Receita estimada */}
+        <KPICard label="Receita (est.)" valor="R$ 288k" delta={-15} sub="24 cirurg. × ticket est. · a confirmar" icon="$" />
       </div>
 
       {/* ── Linha principal: gráfico + painel direito ── */}
