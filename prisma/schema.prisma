@@ -51,6 +51,7 @@ model Usuario {
   documentos      Documento[]
   registros       RegistroMensal[]
   auditLogs       AuditLog[]
+  acompanhamentos AcompanhamentoMensal[]
 }
 
 model Setor {
@@ -127,6 +128,27 @@ model RegistroMensal {
   autor     Usuario?  @relation(fields: [autorId], references: [id])
 
   @@unique([indicadorId, ano, mes])
+}
+
+model AcompanhamentoMensal {
+  id            String   @id @default(cuid())
+  mes           Int
+  ano           Int
+  status        String   @default("rascunho") // rascunho | publicado
+  destaques     Json     @default("[]")
+  desafios      Json     @default("[]")
+  pendencias    Json     @default("[]")
+  proximosMeses Json     @default("[]")
+  metas         Json     @default("[]")
+  observacoes   String?  @db.Text
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+  autorId       String
+
+  autor Usuario @relation(fields: [autorId], references: [id])
+
+  @@unique([mes, ano])
+  @@map("acompanhamento_mensal")
 }
 
 model AuditLog {

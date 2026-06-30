@@ -54,6 +54,10 @@ export default function Sidebar() {
           <span>◉</span> Indicadores
         </Link>
 
+        <Link href="/acompanhamento" className={cls(isActive("/acompanhamento"))}>
+          <span>◫</span> Acompanhamento
+        </Link>
+
         <div className="pt-4 pb-1">
           <p className="px-3 text-xs font-semibold uppercase tracking-wider text-stone-400">
             Setores
