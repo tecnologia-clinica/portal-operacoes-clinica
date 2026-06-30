@@ -50,6 +50,10 @@ export default function Sidebar() {
           <span>⊞</span> Painel Executivo
         </Link>
 
+        <Link href="/indicadores" className={cls(isActive("/indicadores"))}>
+          <span>◉</span> Indicadores
+        </Link>
+
         <div className="pt-4 pb-1">
           <p className="px-3 text-xs font-semibold uppercase tracking-wider text-stone-400">
             Setores
