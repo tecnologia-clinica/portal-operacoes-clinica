@@ -31,7 +31,7 @@ const TOOLTIP_STYLE = {
 
 export default function GraficoEvolucao() {
   return (
-    <div className="bg-white rounded-xl p-5" style={{ border: "1px solid #E8DDD0" }}>
+    <div className="bg-white rounded-2xl p-5" style={{ border: "1px solid #E8DDD0" }}>
       <div className="mb-4">
         <p className="text-sm font-semibold" style={{ color: "#2C1810" }}>Evolução mensal</p>
         <p className="text-xs mt-0.5" style={{ color: "#9A8570" }}>Janeiro — Junho 2026</p>

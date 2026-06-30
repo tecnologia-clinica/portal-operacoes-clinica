@@ -41,7 +41,7 @@ function CustomTooltip({ active, payload, label }: any) {
 
 export default function GraficoReceita() {
   return (
-    <div className="bg-white rounded-xl p-5" style={{ border: "1px solid #E8DDD0" }}>
+    <div className="bg-white rounded-2xl p-5" style={{ border: "1px solid #E8DDD0" }}>
       <div className="mb-4">
         <p className="text-sm font-semibold" style={{ color: "#2C1810" }}>Receita bruta</p>
         <p className="text-xs mt-0.5" style={{ color: "#9A8570" }}>R$ mil · Jan — Jun 2026</p>
