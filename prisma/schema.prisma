@@ -1,0 +1,142 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Papel {
+  DONO
+  GESTAO
+  LIDER
+  OPERACAO
+}
+
+enum StatusDocumento {
+  RASCUNHO
+  EM_REVISAO
+  APROVADO
+}
+
+enum TipoDocumento {
+  POP
+  POLITICA
+  JD
+}
+
+enum FrequenciaIndicador {
+  DIARIA
+  SEMANAL
+  MENSAL
+}
+
+enum StatusIndicador {
+  ATIVO
+  DESCONTINUADO
+}
+
+model Usuario {
+  id        String   @id @default(cuid())
+  nome      String
+  email     String   @unique
+  senha     String
+  papel     Papel    @default(OPERACAO)
+  setorId   String?
+  criadoEm  DateTime @default(now())
+
+  setor           Setor?           @relation(fields: [setorId], references: [id])
+  setoresLiderados Setor[]         @relation("LiderSetor")
+  documentos      Documento[]
+  registros       RegistroMensal[]
+  auditLogs       AuditLog[]
+}
+
+model Setor {
+  id          String  @id @default(cuid())
+  nome        String  @unique
+  descricao   String?
+  responsavelId String?
+
+  responsavel  Usuario?    @relation("LiderSetor", fields: [responsavelId], references: [id])
+  usuarios     Usuario[]
+  documentos   Documento[]
+  indicadores  Indicador[]
+}
+
+model Documento {
+  id            String          @id @default(cuid())
+  setorId       String
+  titulo        String
+  tipo          TipoDocumento
+  conteudoMd    String          @db.Text
+  status        StatusDocumento @default(RASCUNHO)
+  versao        Int             @default(1)
+  responsavelId String?
+  dataRevisao   DateTime?
+  arquivado     Boolean         @default(false)
+  criadoEm      DateTime        @default(now())
+  atualizadoEm  DateTime        @updatedAt
+
+  setor       Setor      @relation(fields: [setorId], references: [id])
+  responsavel Usuario?   @relation(fields: [responsavelId], references: [id])
+  indicadores Indicador[]
+}
+
+model Indicador {
+  id              String              @id @default(cuid())
+  setorId         String
+  nome            String
+  definicao       String              @db.Text
+  unidade         String
+  fonte           String
+  frequencia      FrequenciaIndicador @default(MENSAL)
+  responsavelId   String?
+  popDocumentoId  String?
+  status          StatusIndicador     @default(ATIVO)
+  criadoEm        DateTime            @default(now())
+
+  setor       Setor            @relation(fields: [setorId], references: [id])
+  popDocumento Documento?      @relation(fields: [popDocumentoId], references: [id])
+  metas       Meta[]
+  registros   RegistroMensal[]
+}
+
+model Meta {
+  id            String    @id @default(cuid())
+  indicadorId   String
+  valor         Float
+  periodoInicio DateTime
+  periodoFim    DateTime
+
+  indicador Indicador @relation(fields: [indicadorId], references: [id])
+}
+
+model RegistroMensal {
+  id          String   @id @default(cuid())
+  indicadorId String
+  ano         Int
+  mes         Int
+  valor       Float
+  fechado     Boolean  @default(false)
+  autorId     String?
+  criadoEm    DateTime @default(now())
+
+  indicador Indicador @relation(fields: [indicadorId], references: [id])
+  autor     Usuario?  @relation(fields: [autorId], references: [id])
+
+  @@unique([indicadorId, ano, mes])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  usuarioId  String?
+  entidade   String
+  entidadeId String
+  acao       String
+  payload    Json?
+  timestamp  DateTime @default(now())
+
+  usuario Usuario? @relation(fields: [usuarioId], references: [id])
+}
