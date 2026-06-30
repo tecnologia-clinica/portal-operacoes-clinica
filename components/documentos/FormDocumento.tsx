@@ -5,6 +5,17 @@ import { useRouter } from "next/navigation";
 
 const TIPOS = ["POP", "POLITICA", "JD"] as const;
 
+const inputStyle = {
+  border: "1px solid #E8DDD0",
+  borderRadius: "0.5rem",
+  padding: "0.5rem 0.75rem",
+  fontSize: "0.875rem",
+  width: "100%",
+  outline: "none",
+  color: "#2C1810",
+  backgroundColor: "#fff",
+};
+
 export default function FormDocumento({
   setorId,
   setorSlug,
@@ -50,25 +61,25 @@ export default function FormDocumento({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-slate-200 p-6 space-y-5">
+    <form onSubmit={handleSubmit} className="bg-white rounded-xl p-6 space-y-5" style={{ border: "1px solid #E8DDD0" }}>
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">Título</label>
+        <label className="block text-sm font-medium mb-1" style={{ color: "#6B5744" }}>Título</label>
         <input
           type="text"
           value={titulo}
           onChange={(e) => setTitulo(e.target.value)}
           required
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          style={inputStyle}
           placeholder="Ex: POP de Atendimento ao Lead"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">Tipo</label>
+        <label className="block text-sm font-medium mb-1" style={{ color: "#6B5744" }}>Tipo</label>
         <select
           value={tipo}
           onChange={(e) => setTipo(e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          style={inputStyle}
         >
           {TIPOS.map((t) => (
             <option key={t} value={t}>{t === "JD" ? "Job Description (JD)" : t}</option>
@@ -77,40 +88,46 @@ export default function FormDocumento({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">Data de revisão</label>
+        <label className="block text-sm font-medium mb-1" style={{ color: "#6B5744" }}>Data de revisão</label>
         <input
           type="date"
           value={dataRevisao}
           onChange={(e) => setDataRevisao(e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          style={inputStyle}
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">Conteúdo (Markdown)</label>
+        <label className="block text-sm font-medium mb-1" style={{ color: "#6B5744" }}>Conteúdo (Markdown)</label>
         <textarea
           value={conteudo}
           onChange={(e) => setConteudo(e.target.value)}
           rows={16}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
-          placeholder="# Título do POP&#10;&#10;## Objetivo&#10;..."
+          style={{ ...inputStyle, fontFamily: "monospace", resize: "vertical" }}
+          placeholder={"# Título do POP\n\n## Objetivo\n..."}
         />
       </div>
 
-      {erro && <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{erro}</p>}
+      {erro && (
+        <p className="text-sm px-3 py-2 rounded-lg" style={{ color: "#B91C1C", backgroundColor: "#FEF2F2" }}>
+          {erro}
+        </p>
+      )}
 
       <div className="flex gap-3 pt-1">
         <button
           type="submit"
           disabled={salvando}
-          className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-sm font-medium rounded-lg transition-colors"
+          className="px-5 py-2 text-white text-sm font-medium rounded-lg transition-colors"
+          style={{ backgroundColor: salvando ? "#D4B87A" : "#C8952A" }}
         >
           {salvando ? "Salvando..." : docId ? "Salvar alterações" : "Criar documento"}
         </button>
         <button
           type="button"
           onClick={() => router.back()}
-          className="px-5 py-2 border border-slate-300 text-slate-600 hover:bg-slate-50 text-sm font-medium rounded-lg transition-colors"
+          className="px-5 py-2 text-sm font-medium rounded-lg transition-colors"
+          style={{ border: "1px solid #E8DDD0", color: "#6B5744", backgroundColor: "#fff" }}
         >
           Cancelar
         </button>
