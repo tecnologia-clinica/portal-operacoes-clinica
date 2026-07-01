@@ -346,6 +346,98 @@ function TabExperiencia({ db }: { db: { mes: number; ano: number; dados: DadosMe
   );
 }
 
+/* ─── Seção Financeiro ──────────────────────────────────── */
+function TabFinanceiro({ db }: { db: { mes: number; ano: number; dados: DadosMetrica } | null }) {
+  const d = db?.dados ?? {};
+  const temDB = db !== null;
+  const fmt = (v: number) => `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+
+  const kpisConsultas = [
+    { label: "Consultas marcadas",   valor: temDB && d.consultas_marcadas  != null ? String(d.consultas_marcadas)  : "—", meta: null,   ok: true  },
+    { label: "Consultas agendadas",  valor: temDB && d.consultas_agendadas != null ? String(d.consultas_agendadas) : "—", meta: null,   ok: true  },
+    { label: "Consultas realizadas", valor: temDB && d.consultas_fechadas  != null ? String(d.consultas_fechadas)  : "—", meta: null,   ok: true  },
+  ];
+
+  const kpisCirurgias = [
+    { label: "Cirurgias — qtd",      valor: temDB && d.cirurgias_quantidade   != null ? String(d.cirurgias_quantidade)            : "—",       meta: "35",          ok: false },
+    { label: "Cirurgias — valor",    valor: temDB && d.cirurgias_valor        != null ? fmt(d.cirurgias_valor)                    : "—",       meta: null,          ok: true  },
+    { label: "Ticket médio",         valor: temDB && d.ticket_medio_cirurgia  != null ? fmt(d.ticket_medio_cirurgia)              : "—",       meta: null,          ok: true  },
+  ];
+
+  const kpisReceita = [
+    { label: "Receita total",        valor: temDB && d.receita_total          != null ? fmt(d.receita_total)                      : "—",       meta: "R$ 340.000",  ok: true  },
+    { label: "Receita consultas",    valor: temDB && d.receita_consultas      != null ? fmt(d.receita_consultas)                  : "—",       meta: null,          ok: true  },
+    { label: "Inadimplência",        valor: temDB && d.inadimplencia_valor    != null ? fmt(d.inadimplencia_valor)                : "—",       meta: "R$ 0",        ok: false },
+  ];
+
+  // taxa de conversão consulta → cirurgia
+  const txConv =
+    temDB && d.consultas_fechadas && d.cirurgias_quantidade
+      ? `${((d.cirurgias_quantidade / d.consultas_fechadas) * 100).toFixed(1)}%`
+      : "—";
+
+  // perda por cancelamento
+  const perda = temDB && d.cancelamentos_valor != null ? fmt(d.cancelamentos_valor) : "—";
+
+  return (
+    <div className="space-y-4">
+      {temDB
+        ? <BannerDados setor="financeiro" mes={db!.mes} ano={db!.ano} dados={d} />
+        : <BannerSemDados setor="financeiro" />}
+
+      {/* Bloco consultas */}
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "#9A8570" }}>Consultas</p>
+        <div className="grid grid-cols-3 gap-3">
+          {kpisConsultas.map((k) => <KPICard key={k.label} {...k} delta={null} />)}
+        </div>
+      </div>
+
+      {/* Bloco cirurgias */}
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "#9A8570" }}>Cirurgias</p>
+        <div className="grid grid-cols-3 gap-3">
+          {kpisCirurgias.map((k) => <KPICard key={k.label} {...k} delta={null} />)}
+        </div>
+      </div>
+
+      {/* Bloco receita */}
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "#9A8570" }}>Receita</p>
+        <div className="grid grid-cols-3 gap-3">
+          {kpisReceita.map((k) => <KPICard key={k.label} {...k} delta={null} />)}
+        </div>
+      </div>
+
+      {/* Resumo calculado */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-white rounded-xl p-4" style={{ border: "1px solid #E8DDD0" }}>
+          <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "#9A8570" }}>Conversão consulta → cirurgia</p>
+          <p className="text-3xl font-bold" style={{ color: txConv === "—" ? "#9A8570" : "#2C1810" }}>{txConv}</p>
+          {temDB && d.consultas_fechadas && d.cirurgias_quantidade && (
+            <p className="text-xs mt-2" style={{ color: "#9A8570" }}>
+              {d.cirurgias_quantidade} cirurgias de {d.consultas_fechadas} consultas realizadas
+            </p>
+          )}
+          {!temDB && (
+            <p className="text-xs mt-2" style={{ color: "#9A8570" }}>Importe os dados para calcular automaticamente</p>
+          )}
+        </div>
+        <div className="bg-white rounded-xl p-4" style={{ border: "1px solid #E8DDD0" }}>
+          <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "#9A8570" }}>Perda por cancelamentos</p>
+          <p className="text-3xl font-bold" style={{ color: perda === "—" ? "#9A8570" : "#B91C1C" }}>{perda}</p>
+          {temDB && d.cancelamentos_valor && (
+            <p className="text-xs mt-2" style={{ color: "#9A8570" }}>Valor de procedimentos cancelados no período</p>
+          )}
+          {!temDB && (
+            <p className="text-xs mt-2" style={{ color: "#9A8570" }}>Importe os dados para ver o impacto financeiro</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Visão Geral ───────────────────────────────────────── */
 function TabGeral({ dadosPorSetor }: { dadosPorSetor: Record<string, { mes: number; ano: number; dados: DadosMetrica } | null> }) {
   return (
@@ -531,10 +623,11 @@ export default async function IndicadoresPage({ searchParams }: Props) {
     clinico:     "Clínico / Cirúrgico",
     atendimento: "Atendimento",
     experiencia: "Experiência do Cliente",
+    financeiro:  "Financeiro",
   };
 
   // Busca os dados mais recentes do banco para todos os setores
-  const setores = ["comercial", "marketing", "clinico", "atendimento", "experiencia"];
+  const setores = ["comercial", "marketing", "clinico", "atendimento", "experiencia", "financeiro"];
   const metricasDB = await db.metricaMensal.findMany({
     where: { setor: { in: setores } },
     orderBy: [{ ano: "desc" }, { mes: "desc" }],
@@ -579,6 +672,7 @@ export default async function IndicadoresPage({ searchParams }: Props) {
       {tab === "clinico"     && <TabClinico db={dadosPorSetor.clinico} />}
       {tab === "atendimento" && <TabAtendimento db={dadosPorSetor.atendimento} />}
       {tab === "experiencia" && <TabExperiencia db={dadosPorSetor.experiencia} />}
+      {tab === "financeiro"  && <TabFinanceiro  db={dadosPorSetor.financeiro} />}
     </div>
   );
 }

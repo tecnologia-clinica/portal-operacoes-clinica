@@ -9,6 +9,7 @@ const TABS = [
   { id: "clinico",          label: "Clínico" },
   { id: "atendimento",      label: "Atendimento" },
   { id: "experiencia",      label: "Exp. Cliente" },
+  { id: "financeiro",       label: "Financeiro" },
 ];
 
 export default function SetorTabs({ ativo }: { ativo: string }) {
