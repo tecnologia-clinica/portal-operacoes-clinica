@@ -13,7 +13,7 @@ export async function importarMetricas(formData: FormData) {
   const ano     = parseInt(formData.get("ano") as string);
   const arquivo = formData.get("arquivo") as File;
 
-  const setoresValidos = ["comercial", "marketing", "clinico", "atendimento", "experiencia"];
+  const setoresValidos = ["comercial", "marketing", "clinico", "atendimento", "experiencia", "financeiro"];
   if (!setoresValidos.includes(setor))       throw new Error("Setor inválido");
   if (!mes || mes < 1 || mes > 12)           throw new Error("Mês inválido");
   if (!ano || ano < 2024 || ano > 2035)      throw new Error("Ano inválido");

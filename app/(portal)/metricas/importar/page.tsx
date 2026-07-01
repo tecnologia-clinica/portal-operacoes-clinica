@@ -10,6 +10,7 @@ const NOME_SETOR: Record<string, string> = {
   clinico:     "Clínico / Cirúrgico",
   atendimento: "Atendimento",
   experiencia: "Experiência do Cliente",
+  financeiro:  "Financeiro",
 };
 
 export default async function ImportarMetricasPage() {

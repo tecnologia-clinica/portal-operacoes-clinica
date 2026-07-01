@@ -9,6 +9,7 @@ const SETORES = [
   { value: "clinico",     label: "Clínico / Cirúrgico" },
   { value: "atendimento", label: "Atendimento" },
   { value: "experiencia", label: "Experiência do Cliente" },
+  { value: "financeiro",  label: "Financeiro" },
 ];
 
 const MESES = [
@@ -73,6 +74,19 @@ const TEMPLATES: Record<string, string> = {
     "reclamacoes_formais,",
     "avaliacoes_google,",
   ].join("\n"),
+  financeiro: [
+    "metrica,valor",
+    "consultas_marcadas,",
+    "consultas_agendadas,",
+    "consultas_fechadas,",
+    "cirurgias_quantidade,",
+    "cirurgias_valor,",
+    "receita_total,",
+    "receita_consultas,",
+    "ticket_medio_cirurgia,",
+    "inadimplencia_valor,",
+    "cancelamentos_valor,",
+  ].join("\n"),
 };
 
 const LABEL_AMIGAVEL: Record<string, string> = {
@@ -110,6 +124,16 @@ const LABEL_AMIGAVEL: Record<string, string> = {
   cancelamentos_cirurgia_pct:"Cancelamentos cirurgia (%)",
   reclamacoes_formais:       "Reclamações formais",
   avaliacoes_google:         "Avaliações Google",
+  consultas_marcadas:        "Consultas marcadas",
+  consultas_agendadas:       "Consultas agendadas",
+  consultas_fechadas:        "Consultas fechadas / realizadas",
+  cirurgias_quantidade:      "Cirurgias — quantidade",
+  cirurgias_valor:           "Cirurgias — valor total (R$)",
+  receita_total:             "Receita total (R$)",
+  receita_consultas:         "Receita de consultas (R$)",
+  ticket_medio_cirurgia:     "Ticket médio por cirurgia (R$)",
+  inadimplencia_valor:       "Inadimplência (R$)",
+  cancelamentos_valor:       "Cancelamentos — valor perdido (R$)",
 };
 
 type LinhaPreview = { metrica: string; valor: string; valido: boolean };
