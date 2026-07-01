@@ -19,7 +19,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "Ação inválida" }, { status: 400 });
   }
 
-  const novoStatus = acao === "APROVAR" ? "APROVADO" : "RASCUNHO";
+  const novoStatus = acao === "APROVAR" ? "APROVADO" : "EM_REVISAO";
 
   const doc = await db.documento.update({
     where: { id },

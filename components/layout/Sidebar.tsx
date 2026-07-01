@@ -12,7 +12,7 @@ const SETORES = [
   { nome: "Pós-operatório", slug: "pos-operatorio" },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ papel }: { papel: string }) {
   const pathname = usePathname();
 
   function isActive(href: string) {
@@ -79,9 +79,11 @@ export default function Sidebar() {
           </p>
         </div>
 
-        <Link href="/admin" className={cls(isActive("/admin"))}>
-          <span>⚙</span> Admin
-        </Link>
+        {(papel === "DONO" || papel === "GESTAO") && (
+          <Link href="/admin" className={cls(isActive("/admin"))}>
+            <span>⚙</span> Admin
+          </Link>
+        )}
       </nav>
     </aside>
   );

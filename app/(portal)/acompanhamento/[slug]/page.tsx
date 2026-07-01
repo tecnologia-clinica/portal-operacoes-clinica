@@ -40,11 +40,18 @@ export default async function AcompanhamentoDetalhe({ params, searchParams }: Pr
 
   const modoEditar = editar === "1" || !registro;
 
-  const destaques     = (registro?.destaques     as string[]) ?? [];
-  const desafios      = (registro?.desafios      as string[]) ?? [];
-  const pendencias    = (registro?.pendencias    as string[]) ?? [];
-  const proximosMeses = (registro?.proximosMeses as string[]) ?? [];
-  const metas         = (registro?.metas         as MetaItem[]) ?? METAS_PADRAO;
+  function toStringArray(val: unknown): string[] {
+    return Array.isArray(val) ? val.filter((x) => typeof x === "string") : [];
+  }
+  function toMetaArray(val: unknown): MetaItem[] {
+    return Array.isArray(val) && val.length > 0 ? (val as MetaItem[]) : METAS_PADRAO;
+  }
+
+  const destaques     = toStringArray(registro?.destaques);
+  const desafios      = toStringArray(registro?.desafios);
+  const pendencias    = toStringArray(registro?.pendencias);
+  const proximosMeses = toStringArray(registro?.proximosMeses);
+  const metas         = toMetaArray(registro?.metas);
   const observacoes   = registro?.observacoes ?? "";
 
   const action = salvarAcompanhamento.bind(null, slug);

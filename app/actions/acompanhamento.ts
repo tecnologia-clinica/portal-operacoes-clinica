@@ -17,7 +17,18 @@ export async function salvarAcompanhamento(slug: string, formData: FormData) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Não autorizado");
 
-  const [ano, mes] = slug.split("-").map(Number);
+  const slugMatch = slug.match(/^(\d{4})-(\d{2})$/);
+  if (!slugMatch) throw new Error("Slug inválido");
+
+  const ano = parseInt(slugMatch[1]);
+  const mes = parseInt(slugMatch[2]);
+  if (mes < 1 || mes > 12) throw new Error("Mês inválido");
+
+  const publicar = formData.get("publicar") === "1";
+  const papel = (session.user as any).papel as string;
+  if (publicar && papel !== "DONO" && papel !== "GESTAO") {
+    throw new Error("Apenas Gestão ou Dono podem publicar");
+  }
 
   const linhas = (field: string) =>
     ((formData.get(field) as string) ?? "").split("\n").map((l) => l.trim()).filter(Boolean);
@@ -41,8 +52,6 @@ export async function salvarAcompanhamento(slug: string, formData: FormData) {
     unidade:    metasUnidade[i] ?? "",
     fonte:      metasFonte[i]  ?? "",
   }));
-
-  const publicar = formData.get("publicar") === "1";
 
   await db.acompanhamentoMensal.upsert({
     where: { mes_ano: { mes, ano } },

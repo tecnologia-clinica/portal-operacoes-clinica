@@ -21,6 +21,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
+  const papel = (session.user as any).papel;
+  if (papel === "OPERACAO") {
+    return NextResponse.json({ error: "Sem permissão para editar documentos" }, { status: 403 });
+  }
+
   const { id } = await params;
   const body = await req.json();
   const { titulo, conteudoMd, dataRevisao, status } = body;

@@ -41,7 +41,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return token;
     },
     async session({ session, token }) {
-      session.user.id = token.sub!;
+      if (!token.sub) throw new Error("Token sem sub — sessão inválida");
+      session.user.id = token.sub;
       (session.user as any).papel = token.papel;
       (session.user as any).setorId = token.setorId;
       return session;

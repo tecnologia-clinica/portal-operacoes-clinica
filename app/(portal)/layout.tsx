@@ -13,15 +13,17 @@ export default async function PortalLayout({ children }: { children: React.React
     select: { nome: true, papel: true },
   });
 
+  if (!usuario) redirect("/login");
+
   const user = {
     ...session.user,
-    name: usuario?.nome ?? session.user.name,
-    papel: usuario?.papel ?? (session.user as any).papel,
+    name: usuario.nome,
+    papel: usuario.papel,
   };
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar />
+      <Sidebar papel={usuario.papel} />
       <div className="flex flex-col flex-1 overflow-hidden">
         <Topbar user={user} />
         <main className="flex-1 overflow-y-auto p-6" style={{ backgroundColor: "#F7F3EE" }}>{children}</main>
