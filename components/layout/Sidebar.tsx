@@ -58,6 +58,12 @@ export default function Sidebar({ papel }: { papel: string }) {
           <span>◫</span> Acompanhamento
         </Link>
 
+        {(papel === "LIDER" || papel === "GESTAO" || papel === "DONO") && (
+          <Link href="/metricas/importar" className={cls(isActive("/metricas"))}>
+            <span>↑</span> Importar Métricas
+          </Link>
+        )}
+
         <div className="pt-4 pb-1">
           <p className="px-3 text-xs font-semibold uppercase tracking-wider text-stone-400">
             Setores

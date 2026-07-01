@@ -52,6 +52,7 @@ model Usuario {
   registros       RegistroMensal[]
   auditLogs       AuditLog[]
   acompanhamentos AcompanhamentoMensal[]
+  metricas        MetricaMensal[]
 }
 
 model Setor {
@@ -149,6 +150,22 @@ model AcompanhamentoMensal {
 
   @@unique([mes, ano])
   @@map("acompanhamento_mensal")
+}
+
+model MetricaMensal {
+  id           String   @id @default(cuid())
+  setor        String   // comercial | marketing | clinico | atendimento | experiencia
+  mes          Int
+  ano          Int
+  dados        Json
+  autorId      String
+  criadoEm    DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  autor Usuario @relation(fields: [autorId], references: [id])
+
+  @@unique([setor, mes, ano])
+  @@map("metrica_mensal")
 }
 
 model AuditLog {
