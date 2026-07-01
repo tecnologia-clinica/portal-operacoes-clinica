@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -34,9 +35,16 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#F7F3EE" }}>
       <div className="w-full max-w-sm bg-white rounded-2xl p-8" style={{ border: "1px solid #E8DDD0", boxShadow: "0 2px 16px rgba(44,24,16,0.06)" }}>
-        <div className="mb-8">
-          <h1 className="text-lg font-semibold" style={{ color: "#2C1810" }}>Clínica Dr. José Salim Cury</h1>
-          <p className="text-sm mt-1" style={{ color: "#9A8570" }}>Portal de Operações · acesso interno</p>
+        <div className="mb-8 flex flex-col items-center">
+          <Image
+            src="/brand/logo-preto-completo.png"
+            alt="Dr. José Salim Cury"
+            width={200}
+            height={100}
+            className="object-contain mb-3"
+            priority
+          />
+          <p className="text-xs" style={{ color: "#9A8570" }}>Portal de Operações · acesso interno</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
