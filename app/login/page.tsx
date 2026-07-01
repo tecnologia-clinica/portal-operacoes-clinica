@@ -37,10 +37,10 @@ export default function LoginPage() {
       <div className="w-full max-w-sm bg-white rounded-2xl p-8" style={{ border: "1px solid #E8DDD0", boxShadow: "0 2px 16px rgba(44,24,16,0.06)" }}>
         <div className="mb-8 flex flex-col items-center">
           <Image
-            src="/brand/logo-preto-completo.png"
+            src="/brand/logo-dourado-completo.png"
             alt="Dr. José Salim Cury"
-            width={200}
-            height={100}
+            width={280}
+            height={140}
             className="object-contain mb-3"
             priority
           />
