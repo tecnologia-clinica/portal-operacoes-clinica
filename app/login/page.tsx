@@ -6,9 +6,9 @@ import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
-  const [erro, setErro] = useState("");
+  const [usuario, setUsuario] = useState("");
+  const [senha, setSenha]     = useState("");
+  const [erro, setErro]       = useState("");
   const [carregando, setCarregando] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -17,7 +17,7 @@ export default function LoginPage() {
     setCarregando(true);
 
     const res = await signIn("credentials", {
-      email,
+      email: usuario,
       password: senha,
       redirect: false,
     });
@@ -25,53 +25,60 @@ export default function LoginPage() {
     setCarregando(false);
 
     if (res?.error) {
-      setErro("Email ou senha incorretos.");
+      setErro("Usuário ou senha incorretos.");
     } else {
       router.push("/");
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
-      <div className="w-full max-w-sm bg-white rounded-xl border border-slate-200 shadow-sm p-8">
+    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#F7F3EE" }}>
+      <div className="w-full max-w-sm bg-white rounded-2xl p-8" style={{ border: "1px solid #E8DDD0", boxShadow: "0 2px 16px rgba(44,24,16,0.06)" }}>
         <div className="mb-8">
-          <h1 className="text-xl font-semibold text-slate-900">Clínica Dr. José Salim Cury</h1>
-          <p className="text-sm text-slate-500 mt-1">Portal de Operações — acesso interno</p>
+          <h1 className="text-lg font-semibold" style={{ color: "#2C1810" }}>Clínica Dr. José Salim Cury</h1>
+          <p className="text-sm mt-1" style={{ color: "#9A8570" }}>Portal de Operações · acesso interno</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+            <label className="block text-xs font-medium mb-1.5" style={{ color: "#6B5744" }}>Usuário</label>
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              value={usuario}
+              onChange={(e) => setUsuario(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="seu@email.com"
+              autoComplete="username"
+              placeholder="seu usuário"
+              className="w-full text-sm px-3 py-2.5 rounded-lg"
+              style={{ border: "1px solid #E8DDD0", color: "#2C1810", backgroundColor: "#FAFAF8", outline: "none" }}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Senha</label>
+            <label className="block text-xs font-medium mb-1.5" style={{ color: "#6B5744" }}>Senha</label>
             <input
               type="password"
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              autoComplete="current-password"
               placeholder="••••••••"
+              className="w-full text-sm px-3 py-2.5 rounded-lg"
+              style={{ border: "1px solid #E8DDD0", color: "#2C1810", backgroundColor: "#FAFAF8", outline: "none" }}
             />
           </div>
 
           {erro && (
-            <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{erro}</p>
+            <p className="text-xs px-3 py-2 rounded-lg" style={{ color: "#B91C1C", backgroundColor: "rgba(185,28,28,0.06)" }}>
+              {erro}
+            </p>
           )}
 
           <button
             type="submit"
             disabled={carregando}
-            className="w-full py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-sm font-medium rounded-lg transition-colors"
+            className="w-full py-2.5 text-white text-sm font-medium rounded-lg transition-opacity"
+            style={{ backgroundColor: carregando ? "#D4B87A" : "#C8952A" }}
           >
             {carregando ? "Entrando..." : "Entrar"}
           </button>

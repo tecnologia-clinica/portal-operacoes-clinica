@@ -65,9 +65,9 @@ export default function FormNovoUsuario({ setores }: { setores: Setor[] }) {
             </div>
 
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: "#6B5744" }}>Email *</label>
+              <label className="block text-xs font-medium mb-1" style={{ color: "#6B5744" }}>Usuário *</label>
               <input
-                name="email" type="email" required placeholder="email@clinicacury.com.br"
+                name="email" type="text" required placeholder="ex: maria.silva"
                 className="w-full text-sm px-3 py-2 rounded-lg"
                 style={{ border: "1px solid #E8DDD0", color: "#2C1810", backgroundColor: "#FAFAF8" }}
               />

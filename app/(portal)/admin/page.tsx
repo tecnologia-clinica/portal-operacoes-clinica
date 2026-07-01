@@ -60,7 +60,7 @@ export default async function AdminPage() {
           <thead>
             <tr style={{ backgroundColor: "#FBF8F4" }}>
               <th className="text-left px-5 py-3 text-xs font-medium uppercase tracking-wide" style={{ color: "#9A8570" }}>Nome</th>
-              <th className="text-left px-4 py-3 text-xs font-medium uppercase tracking-wide" style={{ color: "#9A8570" }}>Email</th>
+              <th className="text-left px-4 py-3 text-xs font-medium uppercase tracking-wide" style={{ color: "#9A8570" }}>Usuário</th>
               <th className="text-left px-4 py-3 text-xs font-medium uppercase tracking-wide" style={{ color: "#9A8570" }}>Setor</th>
               <th className="text-left px-4 py-3 text-xs font-medium uppercase tracking-wide" style={{ color: "#9A8570" }}>Desde</th>
               <th className="text-left px-4 py-3 text-xs font-medium uppercase tracking-wide" style={{ color: "#9A8570" }}>Perfil / Ações</th>
