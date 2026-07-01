@@ -44,7 +44,7 @@ export default function LoginPage() {
             className="object-contain mb-3"
             priority
           />
-          <p className="text-xs" style={{ color: "#9A8570" }}>Portal de Operações · acesso interno</p>
+          <p className="text-sm font-semibold" style={{ color: "#9A8570" }}>Portal de Operações · acesso interno</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
