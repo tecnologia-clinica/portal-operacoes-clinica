@@ -21,8 +21,8 @@ export default async function DocumentoPage({
   if (!doc || doc.arquivado) notFound();
 
   const papel = (session?.user as any)?.papel;
-  const podeAprovar = papel === "DONO" || papel === "GESTAO";
-  const podeEditar = papel !== "OPERACAO";
+  const podeAprovar = papel === "ADMIN";
+  const podeEditar = papel === "ADMIN";
 
   return (
     <div className="max-w-3xl">

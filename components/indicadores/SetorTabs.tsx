@@ -2,19 +2,21 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 
-const TABS = [
-  { id: "geral",            label: "Visão Geral" },
-  { id: "comercial",        label: "Comercial" },
-  { id: "marketing",        label: "Marketing" },
-  { id: "clinico",          label: "Clínico" },
-  { id: "atendimento",      label: "Atendimento" },
-  { id: "experiencia",      label: "Exp. Cliente" },
-  { id: "financeiro",       label: "Financeiro" },
+const TODAS_TABS = [
+  { id: "geral",       label: "Visão Geral" },
+  { id: "comercial",   label: "Comercial" },
+  { id: "marketing",   label: "Marketing" },
+  { id: "clinico",     label: "Clínico" },
+  { id: "atendimento", label: "Atendimento" },
+  { id: "experiencia", label: "Exp. Cliente" },
+  { id: "financeiro",  label: "Financeiro" },
 ];
 
-export default function SetorTabs({ ativo }: { ativo: string }) {
+export default function SetorTabs({ ativo, permitidas }: { ativo: string; permitidas: string[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const tabs = TODAS_TABS.filter((t) => permitidas.includes(t.id));
 
   function navegar(id: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -24,7 +26,7 @@ export default function SetorTabs({ ativo }: { ativo: string }) {
 
   return (
     <div className="flex gap-1 p-1 rounded-xl" style={{ backgroundColor: "#F0E8DD" }}>
-      {TABS.map((t) => {
+      {tabs.map((t) => {
         const ativo_ = t.id === ativo;
         return (
           <button

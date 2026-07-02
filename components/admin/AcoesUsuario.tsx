@@ -4,10 +4,12 @@ import { useState } from "react";
 import { alterarPapel, removerUsuario } from "@/app/actions/admin";
 
 const PAPEIS = [
-  { value: "OPERACAO", label: "Operação" },
-  { value: "LIDER",    label: "Líder" },
-  { value: "GESTAO",   label: "Gestão" },
-  { value: "DONO",     label: "Dono" },
+  { value: "GERAL",      label: "Geral" },
+  { value: "FINANCEIRO", label: "Financeiro" },
+  { value: "COMERCIAL",  label: "Comercial" },
+  { value: "MARKETING",  label: "Marketing" },
+  { value: "EXPERIENCIA",label: "Experiência" },
+  { value: "ADMIN",      label: "Admin" },
 ];
 
 export default function AcoesUsuario({

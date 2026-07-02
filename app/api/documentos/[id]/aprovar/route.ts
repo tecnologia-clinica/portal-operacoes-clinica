@@ -8,7 +8,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
   const papel = (session.user as any).papel;
-  if (papel !== "DONO" && papel !== "GESTAO") {
+  if (papel !== "ADMIN") {
     return NextResponse.json({ error: "Apenas Gestão ou Dono podem aprovar" }, { status: 403 });
   }
 

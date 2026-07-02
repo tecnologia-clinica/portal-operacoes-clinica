@@ -1,9 +1,12 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 import SetorTabs from "@/components/indicadores/SetorTabs";
 import GraficoLeads from "@/components/indicadores/GraficoLeads";
 import GraficoClinico from "@/components/indicadores/GraficoClinico";
 import { db } from "@/lib/db";
+import { tabsPermitidas } from "@/lib/roles";
 
 type Props = { searchParams: Promise<{ tab?: string }> };
 
@@ -614,7 +617,17 @@ function KPIsDB({ dados, campos }: {
 /* ─── Page ──────────────────────────────────────────────── */
 
 export default async function IndicadoresPage({ searchParams }: Props) {
-  const { tab = "geral" } = await searchParams;
+  const session = await auth();
+  const papel   = (session?.user as any)?.papel as string ?? "GERAL";
+  const tabs    = tabsPermitidas(papel);
+
+  const { tab: tabParam } = await searchParams;
+  const tab = tabParam && tabs.includes(tabParam) ? tabParam : tabs[0];
+
+  // Redireciona se a tab pedida não é permitida
+  if (tabParam && !tabs.includes(tabParam)) {
+    redirect(`/indicadores?tab=${tabs[0]}`);
+  }
 
   const TITULO: Record<string, string> = {
     geral:       "Visão Geral",
@@ -663,7 +676,7 @@ export default async function IndicadoresPage({ searchParams }: Props) {
       </div>
 
       <Suspense fallback={null}>
-        <SetorTabs ativo={tab} />
+        <SetorTabs ativo={tab} permitidas={tabs} />
       </Suspense>
 
       {tab === "geral"       && <TabGeral dadosPorSetor={dadosPorSetor} />}

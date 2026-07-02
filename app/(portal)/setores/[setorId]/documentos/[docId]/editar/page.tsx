@@ -10,7 +10,7 @@ export default async function EditarDocumentoPage({
 }) {
   const session = await auth();
   const papel = (session?.user as any)?.papel;
-  if (papel === "OPERACAO") redirect("/painel");
+  if (papel !== "ADMIN") redirect("/painel");
 
   const { setorId, docId } = await params;
 

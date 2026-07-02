@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { podeAdmin, podeImportar } from "@/lib/roles";
 
 const SETORES = [
   { nome: "Comercial", slug: "comercial" },
@@ -14,6 +15,9 @@ const SETORES = [
 
 export default function Sidebar({ papel }: { papel: string }) {
   const pathname = usePathname();
+  const isAdmin     = podeAdmin(papel);
+  const isGeral     = papel === "GERAL";
+  const isDeptl     = !isAdmin && !isGeral; // FINANCEIRO/COMERCIAL/MARKETING/EXPERIENCIA
 
   function isActive(href: string) {
     return pathname === href || pathname.startsWith(href + "/");
@@ -44,51 +48,65 @@ export default function Sidebar({ papel }: { papel: string }) {
         />
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        <Link href="/painel" className={cls(isActive("/painel"))}>
-          <span>⊞</span> Painel Executivo
-        </Link>
 
+        {/* Painel — só ADMIN e GERAL */}
+        {(isAdmin || isGeral) && (
+          <Link href="/painel" className={cls(isActive("/painel"))}>
+            <span>⊞</span> Painel Executivo
+          </Link>
+        )}
+
+        {/* Indicadores — todos */}
         <Link href="/indicadores" className={cls(isActive("/indicadores"))}>
           <span>◉</span> Indicadores
         </Link>
 
-        <Link href="/acompanhamento" className={cls(isActive("/acompanhamento"))}>
-          <span>◫</span> Acompanhamento
-        </Link>
+        {/* Acompanhamento — ADMIN e GERAL */}
+        {(isAdmin || isGeral) && (
+          <Link href="/acompanhamento" className={cls(isActive("/acompanhamento"))}>
+            <span>◫</span> Acompanhamento
+          </Link>
+        )}
 
-        {(papel === "LIDER" || papel === "GESTAO" || papel === "DONO") && (
+        {/* Importar Métricas — todos exceto GERAL */}
+        {podeImportar(papel) && (
           <Link href="/metricas/importar" className={cls(isActive("/metricas"))}>
             <span>↑</span> Importar Métricas
           </Link>
         )}
 
-        <div className="pt-4 pb-1">
-          <p className="px-3 text-xs font-semibold uppercase tracking-wider text-stone-400">
-            Setores
-          </p>
-        </div>
+        {/* Setores e documentos — só ADMIN */}
+        {isAdmin && (
+          <>
+            <div className="pt-4 pb-1">
+              <p className="px-3 text-xs font-semibold uppercase tracking-wider text-stone-400">
+                Setores
+              </p>
+            </div>
+            {SETORES.map((s) => {
+              const href = `/setores/${s.slug}`;
+              return (
+                <Link key={s.slug} href={href} className={cls(isActive(href))}>
+                  {s.nome}
+                </Link>
+              );
+            })}
+          </>
+        )}
 
-        {SETORES.map((s) => {
-          const href = `/setores/${s.slug}`;
-          return (
-            <Link key={s.slug} href={href} className={cls(isActive(href))}>
-              {s.nome}
+        {/* Sistema — só ADMIN */}
+        {isAdmin && (
+          <>
+            <div className="pt-4 pb-1">
+              <p className="px-3 text-xs font-semibold uppercase tracking-wider text-stone-400">
+                Sistema
+              </p>
+            </div>
+            <Link href="/admin" className={cls(isActive("/admin"))}>
+              <span>⚙</span> Admin
             </Link>
-          );
-        })}
-
-        <div className="pt-4 pb-1">
-          <p className="px-3 text-xs font-semibold uppercase tracking-wider text-stone-400">
-            Sistema
-          </p>
-        </div>
-
-        {(papel === "DONO" || papel === "GESTAO") && (
-          <Link href="/admin" className={cls(isActive("/admin"))}>
-            <span>⚙</span> Admin
-          </Link>
+          </>
         )}
       </nav>
     </aside>

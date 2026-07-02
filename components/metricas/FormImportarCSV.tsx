@@ -149,11 +149,22 @@ const LABEL_AMIGAVEL: Record<string, string> = {
 
 type LinhaPreview = { metrica: string; valor: string; valido: boolean };
 
-export default function FormImportarCSV({ setorInicial }: { setorInicial?: string }) {
+export default function FormImportarCSV({
+  setorInicial,
+  setoresPermitidos,
+}: {
+  setorInicial?: string;
+  setoresPermitidos?: string[];
+}) {
   const anoAtual  = new Date().getFullYear().toString();
   const mesAtual  = String(new Date().getMonth() + 1);
 
-  const [setor,    setSetor]    = useState(setorInicial ?? "comercial");
+  const setoresFiltrados = setoresPermitidos
+    ? SETORES.filter((s) => setoresPermitidos.includes(s.value))
+    : SETORES;
+
+  const primeiroSetor = setoresFiltrados[0]?.value ?? "comercial";
+  const [setor,    setSetor]    = useState(setorInicial ?? primeiroSetor);
   const [mes,      setMes]      = useState(mesAtual);
   const [ano,      setAno]      = useState(anoAtual);
   const [preview,  setPreview]  = useState<LinhaPreview[] | null>(null);
@@ -236,7 +247,7 @@ export default function FormImportarCSV({ setorInicial }: { setorInicial?: strin
             className={inputCls}
             style={inputStyle}
           >
-            {SETORES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+            {setoresFiltrados.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
         </div>
         <div>

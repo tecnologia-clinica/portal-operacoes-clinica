@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import FormImportarCSV from "@/components/metricas/FormImportarCSV";
+import { setoresPermitidos, podeImportar } from "@/lib/roles";
 
 const NOME_MES = ["", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 const NOME_SETOR: Record<string, string> = {
@@ -17,8 +18,10 @@ export default async function ImportarMetricasPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
-  const papel = (session.user as any)?.papel as string;
-  if (papel === "OPERACAO") redirect("/painel");
+  const papel  = (session.user as any)?.papel as string;
+  const setores = setoresPermitidos(papel);
+
+  if (!podeImportar(papel)) redirect("/indicadores");
 
   const historico = await db.metricaMensal.findMany({
     orderBy: [{ ano: "desc" }, { mes: "desc" }],
@@ -59,7 +62,7 @@ export default async function ImportarMetricasPage() {
 
       {/* Formulário */}
       <div className="bg-white rounded-xl p-6" style={{ border: "1px solid #E8DDD0" }}>
-        <FormImportarCSV />
+        <FormImportarCSV setoresPermitidos={setores} />
       </div>
 
       {/* Histórico de importações */}

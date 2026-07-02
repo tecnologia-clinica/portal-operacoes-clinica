@@ -3,10 +3,12 @@
 import { signOut } from "next-auth/react";
 
 const PAPEL_LABEL: Record<string, string> = {
-  DONO: "Dono",
-  GESTAO: "Gestão",
-  LIDER: "Líder",
-  OPERACAO: "Operação",
+  ADMIN:      "Admin",
+  FINANCEIRO: "Financeiro",
+  COMERCIAL:  "Comercial",
+  MARKETING:  "Marketing",
+  EXPERIENCIA:"Experiência",
+  GERAL:      "Geral",
 };
 
 export default function Topbar({ user }: { user: any }) {

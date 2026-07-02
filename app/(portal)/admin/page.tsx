@@ -5,17 +5,19 @@ import FormNovoUsuario from "@/components/admin/FormNovoUsuario";
 import AcoesUsuario from "@/components/admin/AcoesUsuario";
 
 const PAPEL_LABEL: Record<string, string> = {
-  DONO: "Dono",
-  GESTAO: "Gestão",
-  LIDER: "Líder",
-  OPERACAO: "Operação",
+  ADMIN:      "Admin",
+  FINANCEIRO: "Financeiro",
+  COMERCIAL:  "Comercial",
+  MARKETING:  "Marketing",
+  EXPERIENCIA:"Experiência",
+  GERAL:      "Geral",
 };
 
 export default async function AdminPage() {
   const session = await auth();
   const papel   = (session?.user as any)?.papel as string;
   const meuId   = session?.user?.id;
-  if (papel !== "DONO" && papel !== "GESTAO") redirect("/painel");
+  if (papel !== "ADMIN") redirect("/painel");
 
   const [usuarios, setores] = await Promise.all([
     db.usuario.findMany({
@@ -79,7 +81,7 @@ export default async function AdminPage() {
                   <AcoesUsuario
                     userId={u.id}
                     papelAtual={u.papel}
-                    ehDono={papel === "DONO"}
+                    ehDono={papel === "ADMIN"}
                     euSou={u.id === meuId}
                   />
                 </td>

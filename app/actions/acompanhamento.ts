@@ -26,8 +26,8 @@ export async function salvarAcompanhamento(slug: string, formData: FormData) {
 
   const publicar = formData.get("publicar") === "1";
   const papel = (session.user as any).papel as string;
-  if (publicar && papel !== "DONO" && papel !== "GESTAO") {
-    throw new Error("Apenas Gestão ou Dono podem publicar");
+  if (publicar && papel !== "ADMIN") {
+    throw new Error("Apenas Admin pode publicar");
   }
 
   const linhas = (field: string) =>

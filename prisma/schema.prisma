@@ -8,10 +8,12 @@ datasource db {
 }
 
 enum Papel {
-  DONO
-  GESTAO
-  LIDER
-  OPERACAO
+  ADMIN
+  FINANCEIRO
+  COMERCIAL
+  MARKETING
+  EXPERIENCIA
+  GERAL
 }
 
 enum StatusDocumento {
@@ -42,7 +44,7 @@ model Usuario {
   nome      String
   email     String   @unique
   senha     String
-  papel     Papel    @default(OPERACAO)
+  papel     Papel    @default(GERAL)
   setorId   String?
   criadoEm  DateTime @default(now())
 

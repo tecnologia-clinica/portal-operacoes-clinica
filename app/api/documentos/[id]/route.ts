@@ -22,7 +22,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
   const papel = (session.user as any).papel;
-  if (papel === "OPERACAO") {
+  if (papel === "GERAL" || papel === "FINANCEIRO" || papel === "COMERCIAL" || papel === "MARKETING" || papel === "EXPERIENCIA") {
     return NextResponse.json({ error: "Sem permissão para editar documentos" }, { status: 403 });
   }
 
@@ -57,7 +57,7 @@ export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id:
   if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
   const papel = (session.user as any).papel;
-  if (papel !== "DONO" && papel !== "GESTAO") {
+  if (papel !== "ADMIN") {
     return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
   }
 
