@@ -40,13 +40,14 @@ enum StatusIndicador {
 }
 
 model Usuario {
-  id        String   @id @default(cuid())
-  nome      String
-  email     String   @unique
-  senha     String
-  papel     Papel    @default(GERAL)
-  setorId   String?
-  criadoEm  DateTime @default(now())
+  id          String   @id @default(cuid())
+  nome        String
+  email       String   @unique
+  senha       String
+  googleEmail String?  @unique
+  papel       Papel    @default(GERAL)
+  setorId     String?
+  criadoEm    DateTime @default(now())
 
   setor           Setor?           @relation(fields: [setorId], references: [id])
   setoresLiderados Setor[]         @relation("LiderSetor")

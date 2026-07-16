@@ -22,6 +22,8 @@ export async function criarUsuario(formData: FormData) {
   const papeis = ["ADMIN","FINANCEIRO","COMERCIAL","MARKETING","EXPERIENCIA","GERAL"];
   const papel  = (formData.get("papel")  as string);
   const setorId = (formData.get("setorId") as string) || null;
+  const googleEmailRaw = (formData.get("googleEmail") as string)?.trim().toLowerCase();
+  const googleEmail = googleEmailRaw || null;
 
   if (!nome || !email || !senha || !papel) throw new Error("Preencha todos os campos obrigatórios");
   if (!papeis.includes(papel)) throw new Error("Perfil inválido");
@@ -30,11 +32,31 @@ export async function criarUsuario(formData: FormData) {
   const existe = await db.usuario.findUnique({ where: { email } });
   if (existe) throw new Error("Usuário já cadastrado");
 
+  if (googleEmail) {
+    const existeGoogle = await db.usuario.findUnique({ where: { googleEmail } });
+    if (existeGoogle) throw new Error("Esse e-mail Google já está vinculado a outro usuário");
+  }
+
   const senhaHash = await hash(senha, 12);
 
   await db.usuario.create({
-    data: { nome, email, senha: senhaHash, papel: papel as any, setorId },
+    data: { nome, email, senha: senhaHash, papel: papel as any, setorId, googleEmail },
   });
+
+  revalidatePath("/admin");
+}
+
+export async function definirGoogleEmail(userId: string, googleEmailRaw: string) {
+  await assertGestao();
+
+  const googleEmail = googleEmailRaw.trim().toLowerCase() || null;
+
+  if (googleEmail) {
+    const existe = await db.usuario.findUnique({ where: { googleEmail } });
+    if (existe && existe.id !== userId) throw new Error("Esse e-mail Google já está vinculado a outro usuário");
+  }
+
+  await db.usuario.update({ where: { id: userId }, data: { googleEmail } });
 
   revalidatePath("/admin");
 }

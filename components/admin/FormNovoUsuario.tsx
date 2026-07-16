@@ -111,6 +111,17 @@ export default function FormNovoUsuario({ setores }: { setores: Setor[] }) {
               </select>
             </div>
 
+            <div className="col-span-2">
+              <label className="block text-xs font-medium mb-1" style={{ color: "#6B5744" }}>
+                E-mail Google (opcional — libera login com Google além de usuário/senha)
+              </label>
+              <input
+                name="googleEmail" type="email" placeholder="nome@gmail.com"
+                className="w-full text-sm px-3 py-2 rounded-lg"
+                style={{ border: "1px solid #E8DDD0", color: "#2C1810", backgroundColor: "#FAFAF8" }}
+              />
+            </div>
+
             {erro && (
               <div className="col-span-2 px-3 py-2 rounded-lg text-xs" style={{ backgroundColor: "rgba(185,28,28,0.06)", color: "#B91C1C" }}>
                 {erro}

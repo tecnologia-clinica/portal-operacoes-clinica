@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import FormNovoUsuario from "@/components/admin/FormNovoUsuario";
 import AcoesUsuario from "@/components/admin/AcoesUsuario";
+import EditarGoogleEmail from "@/components/admin/EditarGoogleEmail";
 
 const PAPEL_LABEL: Record<string, string> = {
   ADMIN:      "Admin",
@@ -64,6 +65,7 @@ export default async function AdminPage() {
               <th className="text-left px-5 py-3 text-xs font-medium uppercase tracking-wide" style={{ color: "#9A8570" }}>Nome</th>
               <th className="text-left px-4 py-3 text-xs font-medium uppercase tracking-wide" style={{ color: "#9A8570" }}>Usuário</th>
               <th className="text-left px-4 py-3 text-xs font-medium uppercase tracking-wide" style={{ color: "#9A8570" }}>Setor</th>
+              <th className="text-left px-4 py-3 text-xs font-medium uppercase tracking-wide" style={{ color: "#9A8570" }}>E-mail Google</th>
               <th className="text-left px-4 py-3 text-xs font-medium uppercase tracking-wide" style={{ color: "#9A8570" }}>Desde</th>
               <th className="text-left px-4 py-3 text-xs font-medium uppercase tracking-wide" style={{ color: "#9A8570" }}>Perfil / Ações</th>
             </tr>
@@ -74,6 +76,9 @@ export default async function AdminPage() {
                 <td className="px-5 py-3.5 font-medium" style={{ color: "#2C1810" }}>{u.nome}</td>
                 <td className="px-4 py-3.5" style={{ color: "#9A8570" }}>{u.email}</td>
                 <td className="px-4 py-3.5" style={{ color: "#9A8570" }}>{u.setor?.nome ?? "—"}</td>
+                <td className="px-4 py-3.5">
+                  <EditarGoogleEmail userId={u.id} valorAtual={u.googleEmail} />
+                </td>
                 <td className="px-4 py-3.5" style={{ color: "#9A8570" }}>
                   {new Date(u.criadoEm).toLocaleDateString("pt-BR")}
                 </td>
