@@ -3,10 +3,14 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { podeImportar, setoresPermitidos } from "@/lib/roles";
 
 export async function importarMetricas(formData: FormData) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Sem permissão");
+
+  const papel = (session.user as any).papel as string;
+  if (!podeImportar(papel)) throw new Error("Sem permissão para importar métricas");
 
   const setor   = (formData.get("setor") as string)?.trim();
   const mes     = parseInt(formData.get("mes") as string);
@@ -15,6 +19,7 @@ export async function importarMetricas(formData: FormData) {
 
   const setoresValidos = ["comercial", "marketing", "clinico", "atendimento", "experiencia", "financeiro"];
   if (!setoresValidos.includes(setor))       throw new Error("Setor inválido");
+  if (!setoresPermitidos(papel).includes(setor)) throw new Error("Sem permissão para importar dados deste setor");
   if (!mes || mes < 1 || mes > 12)           throw new Error("Mês inválido");
   if (!ano || ano < 2024 || ano > 2035)      throw new Error("Ano inválido");
   if (!arquivo || arquivo.size === 0)        throw new Error("Nenhum arquivo enviado");

@@ -6,6 +6,9 @@ import { auditLog } from "@/lib/audit";
 export async function GET(req: NextRequest) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+  if ((session.user as any).papel !== "ADMIN") {
+    return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+  }
 
   const { searchParams } = new URL(req.url);
   const setorId = searchParams.get("setorId");
@@ -27,6 +30,9 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+  if ((session.user as any).papel !== "ADMIN") {
+    return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+  }
 
   const body = await req.json();
   const { titulo, setorId, tipo, conteudoMd, dataRevisao } = body;

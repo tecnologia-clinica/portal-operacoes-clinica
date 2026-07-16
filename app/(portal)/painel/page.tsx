@@ -1,4 +1,7 @@
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
+import { homeDoUsuario } from "@/lib/roles";
 import GraficoEvolucao from "@/components/painel/GraficoEvolucao";
 import GraficoReceita from "@/components/painel/GraficoReceita";
 import DonutMeta from "@/components/painel/DonutMeta";
@@ -13,7 +16,11 @@ const METRICAS_RAPIDAS = [
   { label: "Leads quentes (jun)",    valor: "3",       icon: "↩" },
 ];
 
-export default function PainelPage() {
+export default async function PainelPage() {
+  const session = await auth();
+  const papel = (session?.user as any)?.papel;
+  if (papel !== "ADMIN" && papel !== "GERAL") redirect(homeDoUsuario(papel));
+
   return (
     <div className="space-y-5">
 

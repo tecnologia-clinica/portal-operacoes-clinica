@@ -24,6 +24,7 @@ export default async function ImportarMetricasPage() {
   if (!podeImportar(papel)) redirect("/indicadores");
 
   const historico = await db.metricaMensal.findMany({
+    where: { setor: { in: setores } },
     orderBy: [{ ano: "desc" }, { mes: "desc" }],
     include: { autor: { select: { nome: true } } },
     take: 20,

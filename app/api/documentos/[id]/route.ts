@@ -7,6 +7,9 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
+  const papel = (session.user as any).papel;
+  if (papel !== "ADMIN") return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+
   const { id } = await params;
   const doc = await db.documento.findUnique({
     where: { id },

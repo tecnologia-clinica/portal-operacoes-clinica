@@ -26,6 +26,9 @@ export async function salvarAcompanhamento(slug: string, formData: FormData) {
 
   const publicar = formData.get("publicar") === "1";
   const papel = (session.user as any).papel as string;
+  if (papel !== "ADMIN" && papel !== "GERAL") {
+    throw new Error("Sem permissão para editar o Acompanhamento Mensal");
+  }
   if (publicar && papel !== "ADMIN") {
     throw new Error("Apenas Admin pode publicar");
   }

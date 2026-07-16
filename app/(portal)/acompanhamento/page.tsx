@@ -1,5 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { homeDoUsuario } from "@/lib/roles";
 
 const MESES = [
   "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
@@ -10,6 +13,10 @@ const ANO = 2026;
 const MES_ATUAL = 6; // junho
 
 export default async function AcompanhamentoListaPage() {
+  const session = await auth();
+  const papel = (session?.user as any)?.papel;
+  if (papel !== "ADMIN" && papel !== "GERAL") redirect(homeDoUsuario(papel));
+
   const registros = await db.acompanhamentoMensal.findMany({
     where: { ano: ANO },
     select: { mes: true, status: true, destaques: true, atualizadoEm: true },

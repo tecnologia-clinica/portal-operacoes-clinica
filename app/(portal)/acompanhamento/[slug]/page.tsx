@@ -1,6 +1,8 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { homeDoUsuario } from "@/lib/roles";
 import { salvarAcompanhamento, type MetaItem } from "@/app/actions/acompanhamento";
 import FormAcompanhamento from "./FormAcompanhamento";
 
@@ -22,6 +24,10 @@ const METAS_PADRAO: MetaItem[] = [
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ editar?: string }> };
 
 export default async function AcompanhamentoDetalhe({ params, searchParams }: Props) {
+  const session = await auth();
+  const papel = (session?.user as any)?.papel;
+  if (papel !== "ADMIN" && papel !== "GERAL") redirect(homeDoUsuario(papel));
+
   const { slug }  = await params;
   const { editar } = await searchParams;
 

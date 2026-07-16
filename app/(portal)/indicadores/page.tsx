@@ -6,7 +6,7 @@ import SetorTabs from "@/components/indicadores/SetorTabs";
 import GraficoLeads from "@/components/indicadores/GraficoLeads";
 import GraficoClinico from "@/components/indicadores/GraficoClinico";
 import { db } from "@/lib/db";
-import { tabsPermitidas } from "@/lib/roles";
+import { tabsPermitidas, setoresPermitidos } from "@/lib/roles";
 
 type Props = { searchParams: Promise<{ tab?: string }> };
 
@@ -639,10 +639,12 @@ export default async function IndicadoresPage({ searchParams }: Props) {
     financeiro:  "Financeiro",
   };
 
-  // Busca os dados mais recentes do banco para todos os setores
+  // Busca os dados mais recentes do banco — só os setores que o papel pode ver
   const setores = ["comercial", "marketing", "clinico", "atendimento", "experiencia", "financeiro"];
+  const podeVerTudo = papel === "ADMIN" || papel === "GERAL";
+  const setoresConsulta = podeVerTudo ? setores : setoresPermitidos(papel);
   const metricasDB = await db.metricaMensal.findMany({
-    where: { setor: { in: setores } },
+    where: { setor: { in: setoresConsulta } },
     orderBy: [{ ano: "desc" }, { mes: "desc" }],
   });
 

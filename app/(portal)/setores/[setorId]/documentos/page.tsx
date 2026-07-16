@@ -1,8 +1,9 @@
 import { db } from "@/lib/db";
 import { auth } from "@/auth";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import BadgeStatus from "@/components/documentos/BadgeStatus";
+import { homeDoUsuario } from "@/lib/roles";
 
 const SLUG_NOME: Record<string, string> = {
   comercial: "Comercial",
@@ -20,6 +21,9 @@ export default async function DocumentosPage({
   searchParams: Promise<{ status?: string }>;
 }) {
   const session = await auth();
+  const papel = (session?.user as any)?.papel;
+  if (papel !== "ADMIN") redirect(homeDoUsuario(papel));
+
   const { setorId } = await params;
   const { status } = await searchParams;
 
@@ -38,8 +42,6 @@ export default async function DocumentosPage({
     include: { responsavel: { select: { nome: true } } },
     orderBy: { atualizadoEm: "desc" },
   });
-
-  const papel = (session?.user as any)?.papel;
 
   return (
     <div>

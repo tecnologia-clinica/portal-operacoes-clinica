@@ -1,6 +1,8 @@
 import { db } from "@/lib/db";
-import { notFound } from "next/navigation";
+import { auth } from "@/auth";
+import { notFound, redirect } from "next/navigation";
 import FormDocumento from "@/components/documentos/FormDocumento";
+import { homeDoUsuario } from "@/lib/roles";
 
 const SLUG_NOME: Record<string, string> = {
   comercial: "Comercial",
@@ -15,6 +17,10 @@ export default async function NovoDocumentoPage({
 }: {
   params: Promise<{ setorId: string }>;
 }) {
+  const session = await auth();
+  const papel = (session?.user as any)?.papel;
+  if (papel !== "ADMIN") redirect(homeDoUsuario(papel));
+
   const { setorId } = await params;
   const nomeSetor = SLUG_NOME[setorId];
   if (!nomeSetor) notFound();

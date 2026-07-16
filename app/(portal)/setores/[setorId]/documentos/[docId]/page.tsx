@@ -1,9 +1,10 @@
 import { db } from "@/lib/db";
 import { auth } from "@/auth";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import BadgeStatus from "@/components/documentos/BadgeStatus";
 import AcoesAprovacao from "@/components/documentos/AcoesAprovacao";
+import { homeDoUsuario } from "@/lib/roles";
 
 export default async function DocumentoPage({
   params,
@@ -11,6 +12,9 @@ export default async function DocumentoPage({
   params: Promise<{ setorId: string; docId: string }>;
 }) {
   const session = await auth();
+  const papel = (session?.user as any)?.papel;
+  if (papel !== "ADMIN") redirect(homeDoUsuario(papel));
+
   const { setorId, docId } = await params;
 
   const doc = await db.documento.findUnique({
@@ -20,7 +24,6 @@ export default async function DocumentoPage({
 
   if (!doc || doc.arquivado) notFound();
 
-  const papel = (session?.user as any)?.papel;
   const podeAprovar = papel === "ADMIN";
   const podeEditar = papel === "ADMIN";
 
