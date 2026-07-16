@@ -171,7 +171,9 @@ export default function FormImportarCSV({
   const [erro,     setErro]     = useState("");
   const [ok,       setOk]       = useState(false);
   const [salvando, setSalvando] = useState(false);
-  const formRef = useRef<HTMLFormElement>(null);
+  const [nomeArquivo, setNomeArquivo] = useState("");
+  const formRef    = useRef<HTMLFormElement>(null);
+  const fileRef    = useRef<HTMLInputElement>(null);
 
   function downloadTemplate() {
     const csv  = TEMPLATES[setor];
@@ -180,7 +182,9 @@ export default function FormImportarCSV({
     const a    = document.createElement("a");
     a.href     = url;
     a.download = `template-${setor}-${String(mes).padStart(2, "0")}-${ano}.csv`;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }
 
@@ -188,6 +192,7 @@ export default function FormImportarCSV({
     const file = e.target.files?.[0];
     setPreview(null);
     setErro("");
+    setNomeArquivo(file?.name ?? "");
     if (!file) return;
 
     const reader = new FileReader();
@@ -201,9 +206,17 @@ export default function FormImportarCSV({
         const partes = linhas[i].split(",");
         if (partes.length < 2 || !partes[0].trim()) continue;
         const chave  = partes[0].trim().toLowerCase();
-        const rawVal = partes[1].trim();
-        const valido = rawVal !== "" && !isNaN(parseFloat(rawVal));
-        rows.push({ metrica: chave, valor: rawVal, valido });
+        // join remaining parts in case value itself had commas (e.g. "R$ 1,000")
+        const rawVal = partes.slice(1).join(",").trim();
+        const normalizado = rawVal
+          .replace(/"/g, "")
+          .replace(/R\$\s*/gi, "")
+          .replace(/\s/g, "")
+          .replace(/\.(?=\d{3})/g, "")   // remove thousand-separator dots (pt-BR)
+          .replace(",", ".");              // decimal comma → dot
+        const num    = parseFloat(normalizado);
+        const valido = normalizado !== "" && !isNaN(num);
+        rows.push({ metrica: chave, valor: valido ? String(num) : rawVal, valido });
       }
       setPreview(rows);
     };
@@ -211,14 +224,25 @@ export default function FormImportarCSV({
   }
 
   async function handleSubmit(formData: FormData) {
-    setSalvando(true);
     setErro("");
     setOk(false);
+
+    if (!preview) {
+      setErro("Selecione um arquivo CSV antes de importar.");
+      return;
+    }
+    if (previewValidos.length === 0) {
+      setErro("O arquivo enviado não tem nenhum valor preenchido. Preencha os números no CSV e envie novamente.");
+      return;
+    }
+
+    setSalvando(true);
     try {
       await importarMetricas(formData);
       setOk(true);
       formRef.current?.reset();
       setPreview(null);
+      setNomeArquivo("");
     } catch (e: any) {
       setErro(e.message ?? "Erro ao importar");
     } finally {
@@ -289,17 +313,27 @@ export default function FormImportarCSV({
 
       {/* Upload */}
       <div>
-        <p className="text-xs font-semibold mb-1" style={{ color: "#2C1810" }}>2. Envie o arquivo preenchido</p>
-        <label className={labelCls} style={labelStyle}>Arquivo CSV *</label>
+        <p className="text-xs font-semibold mb-2" style={{ color: "#2C1810" }}>2. Envie o arquivo preenchido</p>
         <input
+          ref={fileRef}
           name="arquivo"
           type="file"
           accept=".csv,text/csv"
           onChange={handleFileChange}
-          required
-          className="w-full text-sm"
-          style={{ color: "#6B5744" }}
+          style={{ display: "none" }}
         />
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          className="text-sm font-medium px-4 py-2.5 rounded-lg w-full text-left"
+          style={{
+            border: "2px dashed #C8952A",
+            backgroundColor: nomeArquivo ? "rgba(200,149,42,0.06)" : "#FAFAF8",
+            color: nomeArquivo ? "#A67A1E" : "#9A8570",
+          }}
+        >
+          {nomeArquivo ? `✓ ${nomeArquivo}` : "📂 Clique aqui para selecionar o arquivo CSV"}
+        </button>
       </div>
 
       {/* Preview */}
@@ -357,15 +391,15 @@ export default function FormImportarCSV({
 
       <button
         type="submit"
-        disabled={salvando || !temDados}
+        disabled={salvando}
         className="px-5 py-2.5 rounded-lg text-sm font-medium"
         style={{
-          backgroundColor: salvando || !temDados ? "#D4B87A" : "#C8952A",
+          backgroundColor: salvando ? "#D4B87A" : "#C8952A",
           color: "#fff",
-          cursor: salvando || !temDados ? "not-allowed" : "pointer",
+          cursor: salvando ? "not-allowed" : "pointer",
         }}
       >
-        {salvando ? "Importando..." : `Importar ${previewValidos.length > 0 ? `${previewValidos.length} métricas` : "dados"}`}
+        {salvando ? "Importando..." : previewValidos.length > 0 ? `Importar ${previewValidos.length} métricas` : "Importar dados"}
       </button>
     </form>
   );

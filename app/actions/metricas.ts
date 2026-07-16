@@ -35,10 +35,16 @@ export async function importarMetricas(formData: FormData) {
   for (let i = 1; i < linhas.length; i++) {
     const partes = linhas[i].split(",");
     if (partes.length < 2) continue;
-    const chave   = partes[0].trim().toLowerCase().replace(/\s+/g, "_");
-    const rawVal  = partes[1].trim();
+    const chave  = partes[0].trim().toLowerCase().replace(/\s+/g, "_");
+    const rawVal = partes.slice(1).join(",").trim();
     if (!chave || rawVal === "") continue;
-    const val = parseFloat(rawVal);
+    const normalizado = rawVal
+      .replace(/"/g, "")
+      .replace(/R\$\s*/gi, "")
+      .replace(/\s/g, "")
+      .replace(/\.(?=\d{3})/g, "")
+      .replace(",", ".");
+    const val = parseFloat(normalizado);
     dados[chave] = isNaN(val) ? null : val;
   }
 
