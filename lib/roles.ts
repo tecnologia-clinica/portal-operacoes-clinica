@@ -36,6 +36,7 @@ export function setoresPermitidos(papel: string): string[] {
 export function podeAdmin(papel: string)    { return papel === "ADMIN"; }
 export function podePublicar(papel: string) { return papel === "ADMIN"; }
 export function podeImportar(papel: string) { return papel !== "GERAL"; }
+export function podeAcessarOrcamentos(papel: string) { return papel === "ADMIN" || papel === "COMERCIAL"; }
 
 export function homeDoUsuario(papel: string): string {
   if (papel === "ADMIN" || papel === "GERAL") return "/painel";

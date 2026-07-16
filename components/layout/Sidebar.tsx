@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { podeAdmin, podeImportar } from "@/lib/roles";
+import { podeAdmin, podeImportar, podeAcessarOrcamentos } from "@/lib/roles";
 
 const SETORES = [
   { nome: "Comercial", slug: "comercial" },
@@ -74,6 +74,13 @@ export default function Sidebar({ papel }: { papel: string }) {
           <Link href="/metricas/importar" className={cls(isActive("/metricas"))}>
             <span>↑</span> Importar Métricas
           </Link>
+        )}
+
+        {/* Orçamentos — ADMIN e COMERCIAL */}
+        {podeAcessarOrcamentos(papel) && (
+          <a href="/orcamentos" target="_blank" rel="noopener noreferrer" className={cls(false)}>
+            <span>◈</span> Gerador de Orçamentos
+          </a>
         )}
 
         {/* Setores e documentos — só ADMIN */}

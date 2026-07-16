@@ -1,0 +1,3463 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador de Orçamentos — Clínica Dr. José Cury</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter+Tight:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --dourado: #B89968;
+    --dourado-escuro: #8B6F47;
+    --bege-claro: #F5F1EA;
+    --bege-medio: #E8DFD1;
+    --cinza-escuro: #2B2B2B;
+    --cinza-medio: #6B6B6B;
+    --cinza-claro: #D4D4D4;
+    --preto: #1A1A1A;
+    --branco: #FFFFFF;
+    --offwhite: #FAF8F4;
+    --erro: #B85450;
+    --sucesso: #6B8E5A;
+    --vermelho-risco: #B85450;
+
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-body: 'Inter Tight', -apple-system, sans-serif;
+
+    --radius: 6px;
+    --shadow-sm: 0 1px 2px rgba(26, 26, 26, 0.04);
+    --shadow-md: 0 4px 12px rgba(26, 26, 26, 0.08);
+    --shadow-lg: 0 12px 40px rgba(26, 26, 26, 0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--offwhite);
+    color: var(--cinza-escuro);
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(at 20% 0%, rgba(184, 153, 104, 0.04) 0px, transparent 50%),
+      radial-gradient(at 80% 100%, rgba(184, 153, 104, 0.04) 0px, transparent 50%);
+  }
+
+  .topbar {
+    background: var(--preto);
+    color: var(--branco);
+    padding: 24px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--dourado);
+  }
+
+  .brand { display: flex; align-items: baseline; gap: 12px; }
+
+  .brand-mark {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--dourado);
+    letter-spacing: 1px;
+  }
+
+  .brand-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  .topbar-actions { display: flex; gap: 12px; align-items: center; }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 480px;
+    gap: 24px;
+    padding: 24px 40px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  /* ==========================================================
+     RESPONSIVIDADE
+     ========================================================== */
+
+  /* TABLET (≤1200px): preview vai pra baixo do formulário */
+  @media (max-width: 1200px) {
+    .layout {
+      grid-template-columns: 1fr;
+      padding: 16px;
+    }
+    .preview-panel {
+      position: static !important;
+      max-height: none !important;
+    }
+  }
+
+  /* TABLET PEQUENO (≤900px) */
+  @media (max-width: 900px) {
+    .topbar {
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 10px 12px;
+    }
+    .topbar h1 {
+      font-size: 16px;
+    }
+    .topbar .topbar-actions {
+      width: 100%;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+    }
+    .form-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
+
+  /* MOBILE (≤640px) */
+  @media (max-width: 640px) {
+    body {
+      font-size: 14px;
+    }
+    .layout {
+      padding: 12px;
+      gap: 12px;
+    }
+    .panel {
+      padding: 16px;
+      border-radius: 8px;
+    }
+    .topbar h1 {
+      font-size: 14px;
+      letter-spacing: 0.3px;
+    }
+    .topbar h1 small {
+      display: none;
+    }
+    .topbar-actions .btn {
+      font-size: 11px;
+      padding: 6px 10px;
+    }
+    .topbar-actions .btn span,
+    .topbar-actions .btn em {
+      display: none;
+    }
+
+    /* Formulário de procedimentos: empilhar tudo */
+    .picker-row {
+      grid-template-columns: 1fr;
+      gap: 8px;
+      padding: 14px 12px;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      background: var(--bege-claro);
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+    .picker-row select,
+    .picker-row input {
+      width: 100%;
+    }
+    /* Adiciona labels visuais nos inputs mobile via data-mobile-label */
+    .picker-row input[type="number"][min="1"]::before {
+      content: 'Quantidade';
+    }
+    .picker-row .icon-btn {
+      width: 100%;
+      height: 36px;
+      margin-top: 4px;
+      background: rgba(220, 53, 69, 0.08);
+      color: var(--erro);
+      border-color: rgba(220, 53, 69, 0.3);
+    }
+
+    .protese-extra {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+    .protese-extra input {
+      max-width: 100%;
+    }
+
+    /* Hospitais e modalidades de pagamento empilham */
+    .panel > div[style*="grid-template-columns: repeat(2, 1fr)"] {
+      grid-template-columns: 1fr !important;
+    }
+
+    /* Caixa de investimento: empilha colunas, mantém visual */
+    .ib-grid.has-discount {
+      grid-template-columns: 1fr !important;
+      gap: 16px;
+    }
+    .ib-grid.has-discount .ib-col-right {
+      border-left: none !important;
+      padding-left: 0 !important;
+      padding-top: 16px;
+      border-top: 1px solid rgba(184, 153, 104, 0.35);
+    }
+    .ib-amount,
+    .ib-amount-special {
+      font-size: 22px;
+    }
+
+    /* Paciente / Cirurgião empilham */
+    .paciente-cirurgiao-block {
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    /* Header de seção numerada menor */
+    .sn-header {
+      font-size: 10px;
+      padding: 8px 10px;
+    }
+
+    /* Tabela de procedimentos: nomes longos quebram linha */
+    .proc-table th,
+    .proc-table td {
+      padding: 6px 8px;
+      font-size: 11px;
+    }
+    .proc-table .ptt-qtd {
+      width: 40px;
+    }
+
+    /* Lista de pagamento: label e valor empilham */
+    .payment-list li {
+      padding: 6px 0 6px 16px;
+      line-height: 1.5;
+    }
+    .pl-label {
+      display: block;
+      min-width: 0;
+      margin-bottom: 2px;
+    }
+    .pl-value,
+    .pl-tag {
+      display: inline-block;
+    }
+
+    /* Hospital cards e prótese: padding menor */
+    .hospital-rec,
+    .protese-bloco {
+      padding: 10px 12px;
+    }
+    .hr-info {
+      font-size: 10px;
+      line-height: 1.5;
+    }
+
+    /* Modais ocupam tela inteira no mobile */
+    .modal {
+      width: 95vw !important;
+      max-width: 95vw !important;
+      max-height: 90vh;
+      margin: 0;
+    }
+    .modal-body {
+      padding: 16px !important;
+    }
+
+    /* Action bar: botões empilham em coluna */
+    .actions-bar {
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .actions-bar .btn {
+      flex: 1 1 calc(50% - 3px);
+      min-width: 0;
+      font-size: 12px;
+      padding: 8px 6px;
+    }
+
+    /* Preview do header (tela): font menor */
+    .screen-only-header {
+      font-size: 12px;
+    }
+    .screen-only-header span[style*="font-display"] {
+      font-size: 18px !important;
+    }
+
+    /* Tooltip não funciona bem no toque, esconde */
+    .tooltip-wrap {
+      display: none !important;
+    }
+
+    /* Recipe cards e historico: melhor padding */
+    .historico-card {
+      padding: 12px;
+    }
+  }
+
+  /* MOBILE PEQUENO (≤380px) */
+  @media (max-width: 380px) {
+    .layout { padding: 8px; }
+    .panel { padding: 12px; }
+    .ib-amount,
+    .ib-amount-special {
+      font-size: 20px;
+    }
+  }
+
+  .panel {
+    background: var(--branco);
+    border-radius: var(--radius);
+    border: 1px solid var(--cinza-claro);
+    padding: 32px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .panel-title {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--cinza-escuro);
+    margin-bottom: 4px;
+    border-left: 3px solid var(--dourado);
+    padding-left: 12px;
+  }
+
+  .panel-subtitle {
+    font-size: 13px;
+    color: var(--cinza-medio);
+    padding-left: 15px;
+    margin-bottom: 24px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  .form-grid.full { grid-template-columns: 1fr; }
+
+  .field-label {
+    display: block;
+    font-size: 11px;
+    color: var(--cinza-medio);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  input[type="text"], input[type="number"], input[type="date"],
+  input[type="tel"], input[type="email"], select, textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--cinza-claro);
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--cinza-escuro);
+    background: var(--branco);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--dourado);
+    box-shadow: 0 0 0 3px rgba(184, 153, 104, 0.15);
+  }
+
+  .section-divider {
+    margin: 32px 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--cinza-claro);
+  }
+
+  .section-divider h3 {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--cinza-escuro);
+  }
+
+  .section-divider .badge {
+    background: var(--dourado);
+    color: var(--branco);
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+  }
+
+  .picker-row {
+    display: grid;
+    grid-template-columns: 200px 1fr 80px 130px 40px;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+  }
+
+  .picker-row:last-child { border-bottom: none; }
+
+  /* Linha de prótese mamária (aparece sob o procedimento de mama) */
+  .protese-row {
+    background: var(--bege-claro);
+    border-left: 3px solid var(--dourado);
+    padding: 10px 14px;
+    margin: 4px 0 12px;
+    border-radius: 4px;
+  }
+
+  /* Variação para Kit Pós-Operatório — cor levemente diferente pra distinguir */
+  .protese-row.kit-pos-row {
+    background: rgba(184, 153, 104, 0.05);
+    border-left-color: var(--dourado-escuro);
+  }
+
+  .protese-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--cinza-escuro);
+  }
+
+  .protese-toggle input[type="checkbox"] { margin: 0; }
+
+  .protese-extra {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .protese-extra input {
+    max-width: 200px;
+  }
+
+  .field-label-sm {
+    font-size: 11px;
+    color: var(--cinza-medio);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .picker-row .icon-btn {
+    background: transparent;
+    border: 1px solid var(--cinza-claro);
+    border-radius: var(--radius);
+    width: 36px; height: 36px;
+    cursor: pointer;
+    color: var(--cinza-medio);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .picker-row .icon-btn:hover {
+    color: var(--erro);
+    border-color: var(--erro);
+  }
+
+  .picker-empty {
+    padding: 32px;
+    text-align: center;
+    color: var(--cinza-medio);
+    font-style: italic;
+    background: var(--bege-claro);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+  }
+
+  .btn-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--bege-claro);
+    color: var(--dourado-escuro);
+    border: 1px dashed var(--dourado);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s;
+    margin-top: 8px;
+  }
+
+  .btn-add:hover {
+    background: var(--dourado);
+    color: var(--branco);
+    border-style: solid;
+  }
+
+  .toggle-group {
+    display: flex;
+    background: var(--bege-claro);
+    border-radius: var(--radius);
+    padding: 4px;
+    gap: 4px;
+    margin-bottom: 16px;
+  }
+
+  .toggle-group button {
+    flex: 1;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--cinza-medio);
+    transition: all 0.2s;
+  }
+
+  .toggle-group button.active {
+    background: var(--branco);
+    color: var(--dourado-escuro);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .preview-panel {
+    background: var(--branco);
+    border-radius: var(--radius);
+    border: 1px solid var(--cinza-claro);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    position: sticky;
+    top: 24px;
+    max-height: calc(100vh - 48px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .preview-header {
+    background: var(--preto);
+    color: var(--branco);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .preview-header h2 {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--dourado);
+  }
+
+  .preview-header .live-dot {
+    width: 8px;
+    height: 8px;
+    background: #6B8E5A;
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .preview-body {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  /* Value Block - LAYOUT ORIGINAL: Total e À Vista lado a lado */
+  .value-block {
+    background: var(--bege-claro);
+    border: 1px solid var(--dourado);
+    border-left: 4px solid var(--dourado);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 20px;
+  }
+
+  .value-block .label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--cinza-medio);
+    margin-bottom: 14px;
+  }
+
+  .value-block-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .value-block-grid.no-discount { grid-template-columns: 1fr; }
+
+  .vbg-col {
+    border-right: 1px solid rgba(184, 153, 104, 0.3);
+    padding-right: 20px;
+  }
+
+  .value-block-grid.no-discount .vbg-col { border-right: none; padding-right: 0; }
+  .vbg-col:last-child { border-right: none; padding-right: 0; }
+
+  .vbg-col .small-label {
+    font-size: 11px;
+    color: var(--cinza-medio);
+    margin-bottom: 4px;
+  }
+
+  .vbg-col .total-amount {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--cinza-escuro);
+    line-height: 1.1;
+  }
+
+  .vbg-col .strike-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--dourado-escuro);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .vbg-col .avista-amount {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--dourado-escuro);
+    line-height: 1.1;
+    margin-bottom: 6px;
+  }
+
+  .vbg-col .economia {
+    font-size: 11px;
+    color: var(--cinza-medio);
+    font-style: italic;
+  }
+
+  .value-block .footer-note {
+    font-size: 10px;
+    color: var(--cinza-medio);
+    font-style: italic;
+    text-align: right;
+    margin-top: 10px;
+  }
+
+  .parcelas-card {
+    border: 1px solid var(--cinza-claro);
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  .parcelas-card h4 {
+    background: var(--bege-medio);
+    padding: 10px 16px;
+    font-family: var(--font-body);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--cinza-escuro);
+    font-weight: 600;
+  }
+
+  .parcelas-list { padding: 4px 16px; }
+
+  .parcela-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    font-size: 13px;
+  }
+
+  .parcela-row:last-child { border-bottom: none; }
+
+  .parcela-row .meio { color: var(--cinza-medio); font-size: 11px; }
+
+  .parcela-row strong {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--cinza-escuro);
+  }
+
+  .preview-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+    font-size: 12px;
+  }
+
+  .preview-table th {
+    background: var(--bege-medio);
+    text-align: left;
+    padding: 8px 10px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--cinza-escuro);
+    font-weight: 600;
+  }
+
+  .preview-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    color: var(--cinza-escuro);
+  }
+
+  .preview-table .col-qtd { text-align: center; width: 50px; }
+  .preview-table .col-valor { text-align: right; white-space: nowrap; }
+
+  .preview-table tfoot td {
+    font-weight: 600;
+    border-bottom: none;
+    border-top: 2px solid var(--cinza-claro);
+  }
+
+  .hospital-card {
+    background: var(--bege-claro);
+    border: 1px solid var(--dourado);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    font-size: 12px;
+  }
+
+  .hospital-card .hosp-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--dourado-escuro);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 4px;
+  }
+
+  .hospital-card .hosp-name {
+    font-weight: 700;
+    color: var(--cinza-escuro);
+    margin-bottom: 4px;
+  }
+
+  .hospital-card .hosp-info {
+    font-size: 11px;
+    color: var(--cinza-medio);
+    line-height: 1.5;
+  }
+
+  .actions-bar {
+    background: var(--bege-claro);
+    border-top: 1px solid var(--dourado);
+    padding: 16px 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .btn {
+    padding: 10px 14px;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.15s;
+  }
+
+  .btn-primary { background: var(--preto); color: var(--branco); }
+  .btn-primary:hover { background: var(--dourado-escuro); }
+
+  .btn-secondary {
+    background: var(--branco);
+    color: var(--cinza-escuro);
+    border: 1px solid var(--cinza-claro);
+  }
+  .btn-secondary:hover { border-color: var(--dourado); color: var(--dourado-escuro); }
+
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 26, 26, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    animation: fadeIn 0.2s;
+  }
+
+  .modal-backdrop.open { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .modal {
+    background: var(--branco);
+    border-radius: var(--radius);
+    width: 100%;
+    max-width: 640px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .modal-head {
+    background: var(--preto);
+    color: var(--branco);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-head h2 {
+    font-family: var(--font-display);
+    color: var(--dourado);
+    font-size: 22px;
+    font-weight: 500;
+  }
+
+  .modal-head button {
+    background: transparent;
+    border: none;
+    color: var(--branco);
+    cursor: pointer;
+    font-size: 22px;
+    width: 32px;
+    height: 32px;
+  }
+
+  .modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  .history-item {
+    border: 1px solid var(--cinza-claro);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.15s;
+  }
+
+  .history-item:hover {
+    border-color: var(--dourado);
+    background: var(--bege-claro);
+  }
+
+  .history-item .info { flex: 1; }
+  .history-item .nome { font-weight: 600; color: var(--cinza-escuro); margin-bottom: 2px; }
+  .history-item .meta { font-size: 11px; color: var(--cinza-medio); }
+  .history-item .valor {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--dourado-escuro);
+  }
+
+  .history-item-actions { display: flex; gap: 6px; }
+
+  .history-item-actions button {
+    background: transparent;
+    border: 1px solid var(--cinza-claro);
+    border-radius: 4px;
+    width: 28px; height: 28px;
+    cursor: pointer;
+    color: var(--cinza-medio);
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .history-item-actions button:hover { color: var(--dourado-escuro); border-color: var(--dourado); }
+  .history-item-actions button.danger:hover { color: var(--erro); border-color: var(--erro); }
+
+  .share-menu {
+    position: fixed;
+    background: var(--branco);
+    border: 1px solid var(--cinza-claro);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    z-index: 50;
+    padding: 6px;
+    display: none;
+    min-width: 200px;
+  }
+
+  .share-menu.open { display: block; }
+
+  .share-menu button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 12px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--cinza-escuro);
+    border-radius: 4px;
+    text-align: left;
+  }
+
+  .share-menu button:hover {
+    background: var(--bege-claro);
+    color: var(--dourado-escuro);
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--preto);
+    color: var(--branco);
+    padding: 12px 20px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    box-shadow: var(--shadow-lg);
+    transition: transform 0.3s ease-out;
+    z-index: 200;
+    border-left: 3px solid var(--dourado);
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.error { border-left-color: var(--erro); }
+  .toast.success { border-left-color: var(--sucesso); }
+
+  .tooltip-wrap {
+    position: relative;
+    display: inline-block;
+  }
+
+  .tooltip-icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--bege-medio);
+    color: var(--dourado-escuro);
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: help;
+    margin-left: 6px;
+  }
+
+  .tooltip-content {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    bottom: 130%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--preto);
+    color: var(--branco);
+    text-align: left;
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.5;
+    width: 260px;
+    z-index: 10;
+    box-shadow: var(--shadow-lg);
+    transition: opacity 0.2s;
+  }
+
+  .tooltip-content::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: var(--preto) transparent transparent transparent;
+  }
+
+  .tooltip-wrap:hover .tooltip-content {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  /* === Grid de parcelamento editável === */
+  .parc-grid {
+    display: grid;
+    grid-template-columns: 110px 1fr 1fr;
+    gap: 10px;
+    align-items: center;
+    padding: 12px;
+    border: 1px solid var(--cinza-claro);
+    border-radius: var(--radius);
+    background: var(--bege-claro);
+    margin-bottom: 8px;
+  }
+
+  .parc-grid label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--cinza-escuro);
+  }
+
+  .parc-grid .parc-input-wrap {
+    position: relative;
+  }
+
+  .parc-grid input.parc-input {
+    width: 100%;
+    padding: 8px 10px;
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--dourado-escuro);
+    border: 1px solid transparent;
+    background: var(--branco);
+    border-radius: 4px;
+    text-align: right;
+  }
+
+  .parc-grid input.parc-input:hover {
+    border-color: var(--cinza-claro);
+  }
+
+  .parc-grid input.parc-input:focus {
+    border-color: var(--dourado);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(184, 153, 104, 0.15);
+  }
+
+  .parc-grid .parc-input-prefix {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+    color: var(--cinza-medio);
+    pointer-events: none;
+    font-weight: 500;
+  }
+
+  .parc-grid input.parc-input.with-prefix {
+    padding-left: 32px;
+    text-align: left;
+  }
+
+  .parc-grid input.parc-input[readonly] {
+    background: var(--bege-claro);
+    color: var(--cinza-medio);
+    cursor: default;
+  }
+
+  .parc-grid input.parc-input.editavel {
+    background: var(--branco);
+    border: 2px solid var(--dourado);
+  }
+
+  .parc-grid.valor-base {
+    background: linear-gradient(135deg, var(--bege-claro) 0%, var(--bege-medio) 100%);
+    border-color: var(--dourado);
+    border-width: 2px;
+  }
+
+  .parc-tag-base {
+    display: inline-block;
+    background: var(--dourado);
+    color: var(--branco);
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-left: 6px;
+  }
+
+  .parc-grid .parc-pct {
+    font-size: 10px;
+    color: var(--sucesso);
+    font-weight: 600;
+    margin-left: 4px;
+  }
+
+  .parc-grid .parc-total {
+    font-size: 11px;
+    color: var(--cinza-medio);
+    text-align: right;
+  }
+
+  .parc-grid.disabled {
+    opacity: 0.4;
+  }
+
+  .parc-grid.disabled input { pointer-events: none; }
+
+  .recalc-hint {
+    font-size: 11px;
+    color: var(--dourado-escuro);
+    background: var(--bege-claro);
+    border-left: 3px solid var(--dourado);
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+
+  .recalc-hint strong { color: var(--cinza-escuro); }
+
+  /* === LAYOUT DO ORÇAMENTO (igual ao PDF de referência) === */
+
+  /* Bloco Paciente / Cirurgião lado a lado */
+  .paciente-cirurgiao-block {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    padding: 14px 0 18px;
+    border-bottom: 1px solid var(--bege-medio);
+    margin-bottom: 20px;
+  }
+  .pcb-col .pcb-label {
+    font-size: 9px;
+    color: var(--cinza-medio);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 4px;
+  }
+  .pcb-col .pcb-value {
+    font-weight: 600;
+    color: var(--cinza-escuro);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  .pcb-col .pcb-sub {
+    font-size: 11px;
+    color: var(--cinza-medio);
+    margin-top: 2px;
+  }
+
+  /* Caixa de investimento (lado a lado: Valor Total | Investimento Especial) */
+  .investment-box {
+    background: var(--bege-claro);
+    border: 1px solid var(--dourado);
+    border-left: 4px solid var(--dourado);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 22px;
+  }
+  .ib-title {
+    font-size: 9px;
+    color: var(--cinza-medio);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 14px;
+  }
+  .ib-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+  .ib-grid.no-discount {
+    grid-template-columns: 1fr;
+  }
+  .ib-grid.has-discount .ib-col-right {
+    border-left: 1px solid rgba(184, 153, 104, 0.35);
+    padding-left: 24px;
+  }
+  .ib-label {
+    font-size: 12px;
+    color: var(--cinza-escuro);
+    margin-bottom: 4px;
+  }
+  .ib-amount {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--cinza-escuro);
+    line-height: 1.1;
+  }
+  .ib-label-special {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--dourado-escuro);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .ib-amount-special {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--dourado-escuro);
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+  .ib-economia {
+    font-size: 11px;
+    color: var(--cinza-medio);
+    font-style: italic;
+  }
+  .ib-note {
+    font-size: 9px;
+    color: var(--cinza-medio);
+    font-style: italic;
+    text-align: right;
+    margin-top: 10px;
+  }
+
+  /* Seções numeradas */
+  .section-numbered {
+    margin-bottom: 22px;
+    page-break-inside: avoid;
+  }
+  .sn-header {
+    background: transparent;
+    color: var(--cinza-escuro);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 8px 12px;
+    border-left: 3px solid var(--dourado);
+    background: var(--bege-claro);
+    margin-bottom: 12px;
+  }
+  .sn-bullets {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+  }
+  .sn-bullets li {
+    position: relative;
+    padding-left: 18px;
+    font-size: 11.5px;
+    color: var(--cinza-escuro);
+    line-height: 1.6;
+    margin-bottom: 4px;
+  }
+  .sn-bullets li::before {
+    content: '·';
+    position: absolute;
+    left: 6px;
+    top: -2px;
+    color: var(--dourado);
+    font-weight: 900;
+    font-size: 18px;
+  }
+  .sn-text {
+    font-size: 11.5px;
+    color: var(--cinza-escuro);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* Tabela de procedimentos (com valores!) */
+  .proc-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11.5px;
+  }
+  .proc-table th {
+    background: var(--bege-medio);
+    text-align: left;
+    padding: 7px 10px;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--cinza-escuro);
+    font-weight: 600;
+  }
+  .proc-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    color: var(--cinza-escuro);
+  }
+  .proc-table .ptt-qtd { text-align: center; width: 60px; }
+  .proc-table .ptt-val { text-align: right; width: 120px; white-space: nowrap; }
+  .proc-table tfoot td {
+    border-top: 1.5px solid var(--cinza-claro);
+    border-bottom: none;
+    padding-top: 8px;
+    font-weight: 600;
+  }
+
+  /* Bloco de prótese mamária dentro de Custos Hospitalares */
+  .protese-bloco {
+    background: #FBF6E2;
+    border: 1px solid #D4A82F;
+    border-left: 3px solid #D4A82F;
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin-top: 10px;
+  }
+
+  .protese-bloco .hr-label {
+    color: #8B6F1F;
+  }
+
+  /* Hospital recomendado (caixa bege com border dourada) */
+  .hospital-rec {
+    background: var(--bege-claro);
+    border: 1px solid var(--bege-medio);
+    border-left: 3px solid var(--dourado);
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin-top: 10px;
+  }
+  .hr-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--dourado-escuro);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 3px;
+  }
+  .hr-name {
+    font-weight: 700;
+    color: var(--cinza-escuro);
+    font-size: 12px;
+    margin-bottom: 3px;
+  }
+  .hr-info {
+    font-size: 11px;
+    color: var(--cinza-medio);
+    line-height: 1.4;
+  }
+
+  /* Lista de pagamento */
+  .payment-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+  }
+  .payment-list li {
+    position: relative;
+    padding: 5px 0 5px 18px;
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: var(--cinza-escuro);
+  }
+  .payment-list li::before {
+    content: '·';
+    position: absolute;
+    left: 6px;
+    top: -1px;
+    color: var(--dourado);
+    font-weight: 900;
+    font-size: 18px;
+  }
+  .pl-label { display: inline-block; min-width: 200px; }
+  .pl-value {
+    font-weight: 700;
+    color: var(--dourado-escuro);
+  }
+  .pl-tag {
+    color: var(--cinza-medio);
+    font-size: 10px;
+    margin-left: 4px;
+  }
+
+  /* Caixas de aviso */
+  .aviso-box {
+    padding: 9px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+    page-break-inside: avoid;
+  }
+  .aviso-box strong {
+    color: var(--cinza-escuro);
+    margin-right: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 10px;
+  }
+  .aviso-bege {
+    background: var(--bege-claro);
+    border-left: 3px solid var(--dourado);
+    color: var(--cinza-escuro);
+  }
+  .aviso-amarelo {
+    background: #FBF6E2;
+    border-left: 3px solid #D4A82F;
+    color: var(--cinza-escuro);
+  }
+
+  /* Assinatura (só no print) */
+  .assinatura-block {
+    display: none;
+  }
+
+  /* Marcador de quebra de página (só atua no PDF, invisível na tela) */
+  .pdf-page-break,
+  .page-break-spacer {
+    display: block;
+    height: 0;
+    width: 0;
+    overflow: hidden;
+    visibility: hidden;
+  }
+
+  /* Mini-header preto (aparece só no PDF, página 2+) */
+  .print-header-mini {
+    display: none;
+  }
+
+  /* === HEADER E FOOTER DE IMPRESSÃO (só aparecem no PDF) === */
+  .print-header,
+  .print-footer,
+  .print-only-header {
+    display: none;
+  }
+
+  @media print {
+    /* Margens normais — header e footer aparecem só nas páginas 1 e última, no fluxo normal */
+    @page {
+      size: A4 portrait;
+      margin: 14mm 12mm;
+    }
+
+    /* Variação A3 (quando body tem classe formato-a3) */
+    body.formato-a3 {
+      /* Não dá pra trocar @page com classe pelo CSS standard, mas
+         o A3 é maior e cabe tudo de qualquer forma. Mantém A4 e o navegador escala. */
+    }
+
+    html, body {
+      background: white !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
+
+    /* Esconde TUDO da interface (formulário, topbar, modais, toasts, etc.) */
+    .topbar, .panel, .actions-bar, .preview-header,
+    .share-menu, .toast, .modal-backdrop {
+      display: none !important;
+    }
+
+    /* Layout: só preview-panel é visível */
+    .layout {
+      display: block !important;
+      padding: 0 !important;
+      max-width: none !important;
+      margin: 0 !important;
+      gap: 0 !important;
+    }
+
+    .layout > .panel { display: none !important; }
+
+    .preview-panel {
+      box-shadow: none !important;
+      border: none !important;
+      max-height: none !important;
+      position: static !important;
+      overflow: visible !important;
+      display: block !important;
+      background: white !important;
+      border-radius: 0 !important;
+    }
+
+    .preview-body {
+      padding: 0 !important;
+      overflow: visible !important;
+      max-height: none !important;
+      font-size: 10pt;
+      line-height: 1.45;
+    }
+
+    /* Header de tela some, só print-header é visível */
+    .screen-only-header { display: none !important; }
+    .print-only-header { display: none !important; }
+
+    /* HEADER E FOOTER PRETOS - aparecem só na página 1 e última, no fluxo normal */
+
+    /* Header preto - aparece no início do documento (página 1 só) */
+    .print-header {
+      display: block !important;
+      position: static !important;
+      width: 100%;
+      height: 18mm;
+      background: #1A1A1A !important;
+      border-bottom: 2px solid #B89968;
+      padding: 0 6mm;
+      margin: 0 0 8mm 0;
+      box-sizing: border-box;
+      page-break-after: avoid !important;
+      break-after: avoid !important;
+    }
+
+    .print-header-content {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .print-header img {
+      height: 13mm;
+      width: auto;
+    }
+
+    .print-header .header-meta {
+      text-align: right;
+      color: #B89968;
+    }
+
+    .print-header .header-meta .meta-line1 {
+      font-family: var(--font-display);
+      font-size: 9pt;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      opacity: 0.85;
+    }
+
+    .print-header .header-meta .meta-line2 {
+      font-size: 8pt;
+      color: rgba(184, 153, 104, 0.75);
+    }
+
+    /* Mini-header preto (página 2 em diante) — aparece logo após page-break-spacer */
+    .print-header-mini {
+      display: block !important;
+      width: 100%;
+      height: 12mm;
+      background: #1A1A1A !important;
+      border-bottom: 1.5px solid #B89968;
+      padding: 0 6mm;
+      margin: 0 0 6mm 0;
+      page-break-after: avoid !important;
+      break-after: avoid !important;
+      page-break-before: avoid !important;
+      break-before: avoid !important;
+      box-sizing: border-box;
+    }
+
+    .print-header-mini .phm-content {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .print-header-mini img {
+      height: 8mm;
+      width: auto;
+    }
+
+    .print-header-mini .phm-meta {
+      text-align: right;
+      color: #B89968;
+    }
+
+    .print-header-mini .phm-line1 {
+      font-family: var(--font-display);
+      font-size: 8pt;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      opacity: 0.85;
+    }
+
+    .print-header-mini .phm-line2 {
+      font-size: 7pt;
+      color: rgba(184, 153, 104, 0.75);
+    }
+
+    /* Footer preto - aparece no final do documento (última página só) */
+    .print-footer {
+      display: flex !important;
+      position: static !important;
+      width: 100%;
+      height: 12mm;
+      background: #1A1A1A !important;
+      border-top: 1.5px solid #B89968;
+      padding: 0 6mm;
+      margin: 12mm 0 0 0;
+      box-sizing: border-box;
+      align-items: center;
+      justify-content: space-between;
+      color: #B89968;
+      font-size: 7pt;
+      page-break-before: avoid !important;
+      break-before: avoid !important;
+    }
+
+    .print-footer .footer-col { flex: 1; }
+    .print-footer .footer-col.center { text-align: center; }
+    .print-footer .footer-col.right { text-align: right; }
+
+    .print-footer strong {
+      color: #B89968;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-size: 6.5pt;
+      display: block;
+      margin-bottom: 1.5px;
+    }
+
+    .print-footer span {
+      color: rgba(245, 241, 234, 0.85);
+      line-height: 1.3;
+    }
+
+    /* PAGE-BREAK INTELIGENTE: blocos que NUNCA podem ser cortados */
+    .investment-box,
+    .paciente-cirurgiao-block,
+    .hospital-rec,
+    .protese-bloco,
+    .aviso-box,
+    .assinatura-block {
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+
+    /* Seções numeradas: tentar manter junto, mas se for muito grande, deixa quebrar */
+    .section-numbered {
+      page-break-inside: auto;
+    }
+
+    /* Header de seção SEMPRE com seu conteúdo (não fica sozinho no fim da página) */
+    .sn-header {
+      page-break-after: avoid !important;
+      break-after: avoid !important;
+    }
+
+    /* Tabela de procedimentos: evita header sozinho no fim de página */
+    .proc-table thead { display: table-header-group; }
+    .proc-table tr {
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+
+    /* Kit Pós-Operatório: força quebrar ANTES da seção (não no meio dos bullets) */
+    .kit-section {
+      page-break-before: auto;
+      break-before: auto;
+    }
+    .kit-section .sn-header {
+      page-break-after: avoid !important;
+      break-after: avoid !important;
+    }
+    .kit-section .kit-content {
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+
+    /* Separador que força quebra de página ANTES de si mesmo (usado antes da seção 4) */
+    /* Tem que ser um elemento próprio - aplicar page-break em elementos com page-break-inside é problemático */
+    .page-break-spacer {
+      display: block;
+      page-break-before: always !important;
+      break-before: page !important;
+      page-break-after: avoid !important;
+      break-after: avoid !important;
+      height: 0;
+      margin: 0;
+      padding: 0;
+      visibility: hidden;
+    }
+
+    /* Mantida por compatibilidade — não usada mais */
+    .force-page-break {
+      page-break-before: always !important;
+      break-before: page !important;
+    }
+
+    /* Mostra assinatura no print */
+    .assinatura-block {
+      display: flex !important;
+      gap: 30px;
+      margin-top: 28px;
+      padding-top: 8px;
+    }
+    .ass-col {
+      flex: 1;
+      text-align: center;
+    }
+    .ass-line {
+      border-top: 1px solid #6c6c6c;
+      margin-bottom: 4px;
+      height: 1px;
+    }
+    .ass-label {
+      font-size: 8.5pt;
+      color: #6c6c6c;
+    }
+
+    /* Garante que cores de fundo de blocos críticos sejam impressas */
+    .investment-box,
+    .sn-header,
+    .hospital-rec,
+    .protese-bloco,
+    .aviso-box,
+    .proc-table th,
+    .paciente-cirurgiao-block,
+    .print-header,
+    .print-footer {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    /* Esconde controles que não fazem sentido no PDF */
+    [contenteditable] { outline: none !important; }
+  }
+
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--cinza-medio);
+  }
+
+  .empty-state-icon {
+    font-family: var(--font-display);
+    font-size: 64px;
+    color: var(--dourado);
+    opacity: 0.4;
+    margin-bottom: 16px;
+  }
+
+  .empty-state p { font-size: 13px; line-height: 1.6; }
+
+  .help-text {
+    font-size: 11px;
+    color: var(--cinza-medio);
+    margin-top: 4px;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER E FOOTER DE IMPRESSÃO (só aparecem no PDF/print, repetem em todas as páginas) -->
+<div class="print-header" id="print_header">
+  <div class="print-header-content">
+    <img src="" alt="Dr. José Salim Cury" id="print_header_logo">
+    <div class="header-meta">
+      <div class="meta-line1">Orçamento</div>
+      <div class="meta-line2" id="print_header_or">OR ——</div>
+    </div>
+  </div>
+</div>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark">Dr. José Salim Cury</div>
+    <div class="brand-sub">— Gerador de Orçamentos</div>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn btn-secondary" onclick="abrirHistorico()" style="background: rgba(255,255,255,0.05); color: var(--branco); border-color: rgba(255,255,255,0.2);" title="Histórico">
+      📁<span> Histórico</span>
+    </button>
+    <button class="btn btn-secondary" onclick="abrirCatalogo()" style="background: rgba(255,255,255,0.05); color: var(--branco); border-color: rgba(255,255,255,0.2);" title="Catálogo">
+      📚<span> Catálogo</span>
+    </button>
+    <button class="btn btn-secondary" onclick="abrirSeletorFormato()" style="background: rgba(255,255,255,0.05); color: var(--branco); border-color: rgba(255,255,255,0.2);" title="Formato do PDF">
+      📄<span> Formato: <span id="formato_atual_label">A4</span></span>
+    </button>
+    <button class="btn btn-primary" onclick="novoOrcamento()" style="background: var(--dourado); color: var(--preto);" title="Novo orçamento">
+      +<span> Novo</span>
+    </button>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="panel">
+    <h1 class="panel-title">Novo Orçamento</h1>
+    <p class="panel-subtitle">Preencha os dados e veja a prévia atualizando ao lado em tempo real</p>
+
+    <div class="section-divider"><h3>1. Identificação</h3></div>
+    <div class="form-grid">
+      <div>
+        <label class="field-label">Número do Orçamento (OR)</label>
+        <input type="text" id="numero_or" placeholder="2678419">
+      </div>
+      <div>
+        <label class="field-label">Data de emissão</label>
+        <input type="date" id="data_emissao">
+      </div>
+    </div>
+    <div class="form-grid full">
+      <div>
+        <label class="field-label">Tipo de Orçamento</label>
+        <select id="tipo_orcamento" onchange="onTipoOrcamentoMudou(this.value)">
+          <option value="cirurgia">Procedimento Cirúrgico</option>
+          <option value="pos">Pós-Operatório / Drenagens</option>
+          <option value="unificado">Unificado (Cirurgia + Pós-Op)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="section-divider"><h3>2. Paciente</h3></div>
+    <div class="form-grid full">
+      <div>
+        <label class="field-label">Nome completo</label>
+        <input type="text" id="paciente_nome" placeholder="Pamela Bruna Oliveira de Souza">
+      </div>
+    </div>
+
+    <div class="section-divider"><h3>3. Equipe Responsável</h3></div>
+    <div class="form-grid">
+      <div>
+        <label class="field-label">Cirurgião Responsável</label>
+        <select id="cirurgiao">
+          <option value="Dr. José Salim Cury">Dr. José Salim Cury</option>
+          <option value="Thales Ferreira Soares">Thales Ferreira Soares</option>
+        </select>
+      </div>
+      <div>
+        <label class="field-label">Consultor Interno</label>
+        <select id="consultor">
+          <option value="Thales Ferreira Soares">Thales Ferreira Soares</option>
+          <option value="Dr. José Salim Cury">Dr. José Salim Cury</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="section-divider">
+      <h3>4. Procedimentos</h3>
+      <span class="badge" id="badge_count">0 itens</span>
+    </div>
+    <p class="help-text" style="margin-bottom: 12px;">
+      Selecione o procedimento na lista suspensa (ou adicione um novo) e <strong>digite o valor à vista negociado</strong>. Os acréscimos de cartão são aplicados automaticamente apenas no parcelamento.
+    </p>
+
+    <!-- Opções globais do orçamento -->
+    <div style="background: var(--bege-claro); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px;">
+      <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 13px; color: var(--cinza-escuro);" id="lbl_mostrar_valores">
+        <input type="checkbox" id="chk_mostrar_valores" onchange="toggleMostrarValores(this.checked)">
+        <span><strong>Mostrar valores unitários</strong> na tabela de procedimentos do PDF</span>
+      </label>
+      <div id="info_modo_pos_op" style="display: none; padding: 8px 10px; background: rgba(184, 153, 104, 0.15); border-left: 3px solid var(--dourado); border-radius: 4px; font-size: 12px; color: var(--cinza-escuro);">
+        💡 <strong>Modo Pós-Operatório ativo</strong> — Equipe Médica e Custos Hospitalares serão ocultados do PDF (configurado em "Tipo de Orçamento").
+      </div>
+    </div>
+
+    <div id="lista_procedimentos">
+      <div class="picker-empty">Nenhum procedimento adicionado.<br><small>Clique em "Adicionar procedimento" para começar.</small></div>
+    </div>
+
+    <button class="btn-add" onclick="adicionarProcedimento()">+ Adicionar procedimento</button>
+
+    <div class="section-divider">
+      <h3>5. Hospitais Recomendados</h3>
+    </div>
+    <p class="help-text" style="margin-bottom: 12px;">Marque os hospitais que aparecem no orçamento. Você pode mostrar um, dois ou nenhum.</p>
+    <div style="display: grid; gap: 10px;">
+      <label style="display: flex; align-items: flex-start; gap: 10px; padding: 12px; background: var(--bege-claro); border: 1px solid var(--bege-medio); border-radius: var(--radius); cursor: pointer;">
+        <input type="checkbox" id="hosp_vila_nova_star" checked onchange="atualizarPreview()" style="margin-top: 3px;">
+        <div style="flex: 1;">
+          <div style="font-weight: 600; color: var(--cinza-escuro); font-size: 13px;">Vila Nova Star (5 estrelas)</div>
+          <div style="font-size: 11px; color: var(--cinza-medio); margin-top: 2px;">Rua Alceu de Campos Rodrigues, 126 · R$ 40.000,00 · (11) 3457-1000</div>
+        </div>
+      </label>
+      <label style="display: flex; align-items: flex-start; gap: 10px; padding: 12px; background: var(--bege-claro); border: 1px solid var(--bege-medio); border-radius: var(--radius); cursor: pointer;">
+        <input type="checkbox" id="hosp_sao_luiz_itaim" onchange="atualizarPreview()" style="margin-top: 3px;">
+        <div style="flex: 1;">
+          <div style="font-weight: 600; color: var(--cinza-escuro); font-size: 13px;">São Luiz Itaim (4 estrelas)</div>
+          <div style="font-size: 11px; color: var(--cinza-medio); margin-top: 2px;">Rua Alceu de Campos Rodrigues, 95 · R$ 30.000,00 · (11) 3040-1100</div>
+        </div>
+      </label>
+    </div>
+
+    <div class="section-divider"><h3>6. Valor Especial à Vista</h3></div>
+    <p class="help-text" style="margin-bottom: 12px;">
+      O desconto à vista é definido <strong>caso a caso pelo médico</strong>. Insira o valor final negociado ou deixe sem desconto.
+    </p>
+    <div class="toggle-group">
+      <button id="modo_manual" class="active" onclick="setModoDesconto('manual')">Definir Valor à Vista</button>
+      <button id="modo_sem" onclick="setModoDesconto('sem')">Sem Desconto à Vista</button>
+    </div>
+
+    <div id="conteudo_desconto">
+      <div>
+        <label class="field-label">Valor à vista (R$)</label>
+        <input type="number" id="valor_avista_manual" inputmode="decimal" placeholder="Ex: 205000.00" step="0.01" min="0" onchange="atualizarPreview()">
+        <p class="help-text">Insira o valor final acordado com o paciente. A economia será calculada automaticamente.</p>
+      </div>
+    </div>
+
+    <div class="section-divider">
+      <h3>7. Modalidades de Pagamento</h3>
+      <button class="btn btn-secondary" onclick="abrirConfigTaxas()" style="padding: 4px 10px; font-size: 10px; margin-left: auto;">⚙ Configurar Taxas</button>
+    </div>
+    <p class="help-text" style="margin-bottom: 12px;">
+      Marque as modalidades que aparecem no orçamento entregue ao paciente. Os valores são calculados automaticamente a partir do total dos procedimentos (ou do valor manual em "À Vista" no item 6).
+    </p>
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+      <label class="field-label" style="display: flex; align-items: center; gap: 6px; padding: 10px; background: var(--bege-claro); border-radius: var(--radius);">
+        <input type="checkbox" id="parc_avista" checked onchange="atualizarPreview()">
+        À vista
+      </label>
+      <label class="field-label" style="display: flex; align-items: center; gap: 6px; padding: 10px; background: var(--bege-claro); border-radius: var(--radius);">
+        <input type="checkbox" id="parc_3" checked onchange="atualizarPreview()">
+        Cartão 3x
+      </label>
+      <label class="field-label" style="display: flex; align-items: center; gap: 6px; padding: 10px; background: var(--bege-claro); border-radius: var(--radius);">
+        <input type="checkbox" id="parc_6" checked onchange="atualizarPreview()">
+        Cartão 6x
+      </label>
+      <label class="field-label" style="display: flex; align-items: center; gap: 6px; padding: 10px; background: var(--bege-claro); border-radius: var(--radius);">
+        <input type="checkbox" id="parc_10" checked onchange="atualizarPreview()">
+        Cartão 10x
+      </label>
+    </div>
+  </div>
+
+  <div class="preview-panel">
+    <div class="preview-header">
+      <h2>Prévia ao Vivo</h2>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span class="live-dot"></span>
+        <small style="color: rgba(255,255,255,0.6); font-size: 11px;">atualiza em tempo real</small>
+      </div>
+    </div>
+
+    <div class="preview-body" id="preview_body"></div>
+
+    <div class="actions-bar">
+      <button class="btn btn-primary" onclick="imprimirPDF()" title="Imprimir / PDF">🖨<span> Imprimir / PDF</span></button>
+      <button class="btn btn-primary" onclick="salvarOrcamento()" style="background: var(--dourado-escuro);" title="Salvar">💾<span> Salvar</span></button>
+      <button class="btn btn-secondary" onclick="toggleShareMenu(event)" id="btn_compartilhar" title="Enviar / Compartilhar">📤<span> Enviar / Compartilhar</span></button>
+      <button class="btn btn-secondary" onclick="copiarResumoTexto()" title="Copiar Resumo">📋<span> Copiar Resumo</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="share-menu" id="share_menu">
+  <button onclick="enviarWhatsApp()">📱 Enviar por WhatsApp</button>
+  <button onclick="enviarEmail()">📧 Enviar por Email</button>
+</div>
+
+<div class="modal-backdrop" id="modal_historico">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Histórico de Orçamentos</h2>
+      <button onclick="fecharModal('modal_historico')">✕</button>
+    </div>
+    <div class="modal-body" id="modal_historico_body"></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal_catalogo">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Catálogo de Procedimentos</h2>
+      <button onclick="fecharModal('modal_catalogo')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin-bottom: 16px; color: var(--cinza-medio); font-size: 13px;">
+        Cadastre apenas os <strong>nomes</strong> dos procedimentos, organizados por categoria. Os valores são definidos caso a caso no momento do orçamento. As alterações persistem localmente neste navegador.
+      </p>
+      <div id="catalogo_lista"></div>
+      <button class="btn-add" onclick="addItemCatalogo()" style="margin-top: 16px;">+ Adicionar item ao catálogo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de seleção de formato do PDF -->
+<div class="modal-backdrop" id="modal_formato">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Formato do PDF</h2>
+      <button onclick="fecharModal('modal_formato')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin-bottom: 20px; color: var(--cinza-medio); font-size: 13px; line-height: 1.6;">
+        Escolha o formato do papel para gerar o PDF. <strong>A4</strong> é o padrão (210×297mm). <strong>A3</strong> é maior (297×420mm), útil quando o orçamento tem muito conteúdo e você prefere caber tudo em uma única página.
+      </p>
+
+      <div style="display: grid; gap: 10px;">
+        <label style="display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--bege-claro); border: 2px solid transparent; border-radius: var(--radius); cursor: pointer;" id="formato_opt_a4">
+          <input type="radio" name="formato_pdf" value="a4" checked onchange="setFormatoPDF('a4')">
+          <div>
+            <div style="font-weight: 600; color: var(--cinza-escuro); font-size: 14px;">A4 (padrão)</div>
+            <div style="font-size: 11px; color: var(--cinza-medio); margin-top: 2px;">210 × 297 mm — formato comum, geralmente sai em 2 páginas</div>
+          </div>
+        </label>
+
+        <label style="display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--bege-claro); border: 2px solid transparent; border-radius: var(--radius); cursor: pointer;" id="formato_opt_a3">
+          <input type="radio" name="formato_pdf" value="a3" onchange="setFormatoPDF('a3')">
+          <div>
+            <div style="font-weight: 600; color: var(--cinza-escuro); font-size: 14px;">A3 (maior)</div>
+            <div style="font-size: 11px; color: var(--cinza-medio); margin-top: 2px;">297 × 420 mm — geralmente cabe em 1 página única</div>
+          </div>
+        </label>
+      </div>
+
+      <button class="btn btn-primary" onclick="fecharModal('modal_formato')" style="width: 100%; margin-top: 20px;">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de seleção de itens do Kit Pós-Operatório -->
+<div class="modal-backdrop" id="modal_kit_itens">
+  <div class="modal" style="max-width: 600px;">
+    <div class="modal-head">
+      <h2>Itens do Kit Pós-Operatório</h2>
+      <button onclick="fecharModalKit(false)">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin-bottom: 16px; color: var(--cinza-medio); font-size: 13px; line-height: 1.6;">
+        Marque os itens que serão entregues com este Kit Pós-Operatório. Apenas os itens marcados aparecerão na lista detalhada do PDF.
+      </p>
+      <div id="kit_itens_lista" style="display: flex; flex-direction: column; gap: 8px; max-height: 400px; overflow-y: auto;">
+        <!-- Itens inseridos via JS -->
+      </div>
+      <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button class="btn btn-secondary" onclick="fecharModalKit(false)" style="flex: 1;">Cancelar</button>
+        <button class="btn btn-primary" onclick="fecharModalKit(true)" style="flex: 1;">Salvar seleção</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal_taxas">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Configurar Taxas de Acréscimo</h2>
+      <button onclick="fecharModal('modal_taxas')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin-bottom: 20px; color: var(--cinza-medio); font-size: 13px; line-height: 1.6;">
+        Fórmula de gross-up: <strong>valor bruto = valor líquido ÷ (1 − taxa)</strong>. Cada taxa representa o custo da operadora de cartão para a modalidade. Exemplo com líquido de R$ 180.000:<br>
+        • 3x: 180.000 ÷ (1 − 0,0597) = <strong>R$ 191.426,22</strong><br>
+        • 6x: 180.000 ÷ (1 − 0,0774) = <strong>R$ 195.143,07</strong><br>
+        • 10x: 180.000 ÷ (1 − 0,1050) = <strong>R$ 201.117,32</strong>
+      </p>
+
+      <div style="margin-bottom: 18px;">
+        <label class="field-label">Taxa em 3x</label>
+        <div class="input-with-suffix">
+          <input type="number" id="taxa_parc_3" step="0.01" min="0" max="100" oninput="onTaxaEditada()">
+          <span class="suffix">%</span>
+        </div>
+        <p class="help-text">Valor 3x = Líquido ÷ (1 − <span id="prev_t3">5,97</span>%)</p>
+      </div>
+
+      <div style="margin-bottom: 18px;">
+        <label class="field-label">Taxa em 6x</label>
+        <div class="input-with-suffix">
+          <input type="number" id="taxa_parc_6" step="0.01" min="0" max="100" oninput="onTaxaEditada()">
+          <span class="suffix">%</span>
+        </div>
+        <p class="help-text">Valor 6x = Líquido ÷ (1 − <span id="prev_t6">7,74</span>%)</p>
+      </div>
+
+      <div style="margin-bottom: 18px;">
+        <label class="field-label">Taxa em 10x</label>
+        <div class="input-with-suffix">
+          <input type="number" id="taxa_parc_10" step="0.01" min="0" max="100" oninput="onTaxaEditada()">
+          <span class="suffix">%</span>
+        </div>
+        <p class="help-text">Valor 10x = Líquido ÷ (1 − <span id="prev_t10">10,50</span>%)</p>
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-top: 24px;">
+        <button class="btn btn-secondary" onclick="restaurarTaxasPadrao()" style="flex: 1;">Restaurar Padrão</button>
+        <button class="btn btn-primary" onclick="fecharModal('modal_taxas')" style="flex: 1;">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Acréscimos aplicam APENAS no parcelamento via cartão.
+// O valor à vista é o preço-base limpo (sem nenhum acréscimo).
+// Os valores são digitados manualmente pela Cams a cada orçamento — preços voláteis.
+const ACRESCIMOS = {
+  parc3: 0.0597,
+  parc6: 0.0774,
+  parc10: 0.1050,
+};
+
+// Catálogo é apenas uma lista de NOMES por categoria — sem valores associados.
+// Os valores são definidos caso a caso pelo cirurgião.
+const CATALOGO_PADRAO = {
+  "Cirurgia": [
+    "Abdominoplastia",
+    "Lipoaspiração MD",
+    "Lipoaspiração - Braços",
+    "Lipoaspiração - Coxas",
+    "Lipoaspiração - Costas",
+    "Lipoaspiração - Papada",
+    "Glúteo - Enxertia",
+    "Mamoplastia de Aumento (Prótese)",
+    "Mamoplastia Redutora",
+    "Mastopexia (Lifting de Mama)",
+    "Rinoplastia",
+    "Otoplastia",
+    "Blefaroplastia",
+    "Lifting Facial",
+    "Mini Lifting",
+    "Braquioplastia",
+    "Cruroplastia",
+    "Abdominoplastia + Lipo MD",
+    "Mommy Makeover",
+  ],
+  "Tecnologias Associadas": [
+    "Laser Body Tite",
+    "Laser Face Tite",
+    "Renuvion (J-Plasma)",
+    "Vaser Lipo",
+  ],
+  "Drenagens": [
+    "Drenagem Pós-Cirúrgica Intra-Hospitalar",
+    "Drenagem Pós-Operatório - Sessão Protocolo",
+    "Drenagem Linfática Manual",
+  ],
+  "Pós-Operatório": [
+    "Kit Pós-Operatório 1",
+    "Kit Pós-Operatório 2",
+    "Cinta Cirúrgica - Linha Comfort",
+    "Cinta de Segunda Etapa",
+    "Placas de Contenção",
+    "Meia Antitrombo",
+    "Diprospan",
+  ]
+};
+
+const HOSPITAIS = {
+  vila_nova_star: {
+    nome: "Vila Nova Star",
+    estrelas: "5 estrelas",
+    endereco: "Rua Alceu de Campos Rodrigues, 126",
+    valor: 40000,
+    telefone: "(11) 3457-1000"
+  },
+  sao_luiz_itaim: {
+    nome: "São Luiz Itaim",
+    estrelas: "4 estrelas",
+    endereco: "Rua Alceu de Campos Rodrigues, 95",
+    valor: 30000,
+    telefone: "(11) 3040-1100"
+  }
+};
+
+const LOGO_DATA_URI = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iQmVnZV9DbGFyb18xIiBkYXRhLW5hbWU9IkJlZ2UgQ2xhcm8gMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgMTA4MCAxMDgwIj4KICA8ZGVmcz4KICAgIDxzdHlsZT4KICAgICAgLmNscy0xIHsKICAgICAgICBmaWxsOiAjQjg5OTY4OwogICAgICB9CiAgICA8L3N0eWxlPgogIDwvZGVmcz4KICA8Zz4KICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTI0LjU1LDU0Ny44M2gtMTEuOXYtLjgzbDQuODgtMi4zNHYtODAuNTlsLTQuODgtMi4zNHYtLjgzaDExLjI4bDQuMzkuMjFjNC41My4zOSw4LjkxLDEuNDcsMTMuMTQsMy4yNSw1LjE5LDIuMjEsOS43OCw1LjMyLDEzLjc5LDkuMzIsNC4wMSw0LjAxLDcuMTIsOC42MSw5LjMyLDEzLjc5LDIuMjgsNS40MSwzLjQxLDExLjA0LDMuNDEsMTYuOTFzLTEuMTQsMTEuNS0zLjQxLDE2LjkxYy0yLjIxLDUuMi01LjMyLDkuOC05LjMyLDEzLjgtNC4wMSw0LTguNjEsNy4xMS0xMy43OSw5LjMxLTUuNCwyLjI4LTExLjAzLDMuNDItMTYuOTEsMy40MlpNMjQuNTUsNTQ3YzIuNTgsMCw1LjEtLjIzLDcuNTctLjY4LDQuMDctMS4xLDcuODMtMi45NCwxMS4yNy01LjUsMy40NC0yLjU3LDYuNDQtNS43MSw5LTkuNDMsMi41Ni0zLjcyLDQuNTUtNy44Nyw1Ljk3LTEyLjQ2czIuMTMtOS40MywyLjEzLTE0LjU0LS43MS05Ljk1LTIuMTMtMTQuNTNjLTEuNDItNC41OC0zLjQxLTguNzMtNS45Ny0xMi40NS0yLjU2LTMuNzItNS41Ni02Ljg2LTktOS40My0zLjQ0LTIuNTctNy4yLTQuNDEtMTEuMjctNS41My0xLjItLjIyLTIuNDEtLjM5LTMuNjItLjUtMS4zMS0uMTItMi44NC0uMTktNC41Ny0uMTl2ODUuMjNoLjYyWiIvPgogICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNOTUuOTQsNTQ3LjgzaC0xNi4xNnYtLjgzbDQuODgtMi4zNHYtNjMuODFsLTQuODgtMi4zNHYtLjgzaDkuNDJsMS44NiwyLjN2NTIuNjdjLjc5LTcuMDUsMS45My0xNC4xMiwzLjQ0LTIxLjIxLDEuOS04Ljg3LDQuMTMtMTYuMDMsNi42OC0yMS40OCwzLjI0LTYuODgsNi45NS0xMC44NCwxMS4xMS0xMS44OCwxLjItLjI5LDIuMzQtLjQzLDMuNDQtLjQzLDEuNjEsMCwzLjEuMzIsNC40Ny45N2wtMS4yLDEyLjU4aC0uODNsLS44My0xLjUxYy0uNTUtMS4wMS0xLjMtMi4xMi0yLjI2LTMuMzMtLjk1LTEuMjEtMi4wNC0yLjItMy4yNy0yLjk2LS43OS0uNDctMS42LS43LTIuNDQtLjctLjQ4LDAtMS4yLjE0LTIuMTUuNDItLjk1LjI4LTIuMTMsMS41Ni0zLjU0LDMuODQtMy4yNyw1LjYyLTYuMDYsMTMuODMtOC4zOCwyNC42NS0xLjQyLDYuODgtMi40NiwxMy4wOC0zLjExLDE4LjU4LS42Niw1LjUxLTEuMDMsOS4wNS0xLjEzLDEwLjY0djMuODNsNC44OCwyLjM0di44M1oiLz4KICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTEzNy40OCw1NDcuNjVjLS45MiwwLTEuNy0uMzMtMi4zNC0uOTktLjYzLS42Ni0uOTUtMS40Ny0uOTUtMi40Mi4wNS0uOS40LTEuNjUsMS4wMy0yLjI1LjY0LS42MSwxLjM5LS45MSwyLjI2LS45MXMxLjY3LjMyLDIuMzIuOTdjLjY1LjY1Ljk3LDEuNDIuOTcsMi4zMnMtLjMyLDEuNjctLjk3LDIuMzItMS40Mi45Ny0yLjMyLjk3WiIvPgogICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMTk5LjU3LDU0Ny44M2MtMi40MywwLTQuNjMtLjYtNi42LTEuOC0xLjQxLS44Ni0yLjU4LTEuODQtMy41Mi0yLjk2LS40My0uNS0uNjQtLjc3LS42NC0uODFsNi43My01Ljk0LjU2LjYyLTEuMDgsMi41LS4xNy42NGMtLjE1LjYyLS4yMywxLjI3LS4yMywxLjk0LDAsLjU3LjA4LDEuMTcuMjQsMS44Mi4xNi42NS41MSwxLjI1LDEuMDUsMS44bC4xMi4xLjAyLjA0Yy45NS44LDIuMTIsMS4yLDMuNTIsMS4yLDEuMzEsMCwyLjQtLjI1LDMuMjYtLjc1Ljg2LS41LDEuNTUtMS4xNywyLjA3LTIsLjUyLS44My45LTEuNzQsMS4xNi0yLjc1LjI2LTEuMDEuNDItMi4wMy41LTMuMDhzLjExLTIuMDIuMTEtMi45MnYtNzEuNDJsLTQuODgtMi4zNHYtLjgzaDE2LjE2di44M2wtNC44OCwyLjM0djcwLjYxYy0uMTgsMi4zNi0uODMsNC40OS0xLjk3LDYuMzktMS4xMywxLjktMi42MSwzLjQ1LTQuNDMsNC42NC0yLjEyLDEuNDEtNC40OSwyLjExLTcuMSwyLjExWiIvPgogICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMjU4LjkyLDU0OC4wOGMtNC42NCwwLTkuMDktLjg3LTEzLjM1LTIuNjEtNC40My0xLjc5LTguMzQtNC4zOS0xMS43NC03Ljc5LTMuNC0zLjQtNi03LjMyLTcuNzktMTEuNzQtMS43NC00LjI5LTIuNjEtOC43NC0yLjYxLTEzLjM1cy44Ny05LjA3LDIuNjEtMTMuMzVjMS43OS00LjQzLDQuMzktOC4zNCw3Ljc5LTExLjc0czcuMzItNiwxMS43NC03Ljc5YzQuMjYtMS43Miw4LjcxLTIuNTksMTMuMzUtMi42MSw0LjYxLDAsOS4wNi44NywxMy4zNSwyLjYxLDQuNDMsMS43OSw4LjM0LDQuMzksMTEuNzQsNy43OXM2LDcuMzIsNy43OSwxMS43NGMxLjcyLDQuMjgsMi41OSw4LjczLDIuNjEsMTMuMzUtLjAxLDQuNjQtLjg4LDkuMDgtMi42MSwxMy4zNS0xLjc5LDQuNDMtNC4zOSw4LjM0LTcuNzksMTEuNzQtMy40LDMuNC03LjMyLDYtMTEuNzQsNy43OS00LjI4LDEuNzQtOC43MywyLjYxLTEzLjM1LDIuNjFaTTI2NS42NCw1NDQuMTNjLjg0LDAsMi43LS4xMiw1LjU3LS4zNiwyLjg3LS4yNCw2LjIyLTEuOCwxMC4wNC00LjY3LDEuNi0xLjM1LDMtMi43NSw0LjItNC4yLDMuMzQtNC40Niw1LjAxLTkuNjgsNS4wMS0xNS42NywwLTQuMDgtLjktOC40NC0yLjY5LTEzLjA2LTEuNzktNC42Mi00LjgxLTkuMDktOS4wNS0xMy4zOS00LjI2LTQuMTktOC45LTcuMjgtMTMuOTEtOS4yNS00LjI1LTEuNjctOC40NS0yLjUtMTIuNi0yLjUtLjczLDAtMi40OS4xLTUuMjkuMy0yLjc5LjItNi4xMSwxLjY3LTkuOTQsNC40Mi0uOS43My0xLjc2LDEuNTEtMi41OCwyLjMzLS44Mi44Mi0xLjU4LDEuNjctMi4yOSwyLjUzaC0uMDJjLTMuMTYsNC4zOS00Ljc0LDkuNDctNC43NCwxNS4yNSwwLDQuMTUuOTEsOC41NSwyLjczLDEzLjE4LDEuODIsNC42NCw0LjgzLDkuMDgsOS4wMiwxMy4zMyw0LjMsNC4yNSw4Ljk5LDcuMzUsMTQuMDcsOS4zMSw0LjIxLDEuNjMsOC4zNiwyLjQ0LDEyLjQ2LDIuNDRaIi8+CiAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0zMzAuMDIsNTQ4LjE0Yy0yLjY2LDAtNS4yNC0uMzEtNy43Mi0uOTMtNi45Ny0xLjc0LTEyLjMzLTUuNzUtMTYuMS0xMi4wNS0yLjMtNC0zLjQ2LTguMDItMy40Ni0xMi4wNHYtLjVsOC42MS0uMDQtLjA0LjYyYy0uMDMuNDMtLjA0LDEtLjA0LDEuNzIsMCw1LjczLDEuMDksMTAuNTgsMy4yNywxNC41NSwyLjA3LDMuNzksNS4yMiw2LjIyLDkuNDQsNy4yNiwxLjk3LjM5LDQsLjU4LDYuMDguNTgsMy4yMSwwLDYuNDktLjQ3LDkuODMtMS40MSw0LjgtMS40Miw4LjUtNCwxMS4wOS03Ljc0LDEuNy0yLjYxLDIuNTUtNS40MiwyLjU1LTguNDQsMC0yLjczLS43MS01LjQ0LTIuMTMtOC4xMy0yLjQ4LTQuNTktNi44Ny04LjY0LTEzLjE2LTEyLjE1LTIuOTUtMS42Mi01Ljk3LTMuMS05LjA0LTQuNDVsLS44Ny0uMzljLTIuMjItMS4wMS00LjQyLTIuMDgtNi42LTMuMjEtMS41OS0uOC0zLjI0LTEuODMtNC45NS0zLjEtMS43MS0xLjI3LTMuMDEtMi43OS0zLjkxLTQuNTctLjU1LTEuMjYtLjgzLTIuNTUtLjgzLTMuODcsMC0xLjIuMjItMi40MS42Ni0zLjYyLjk0LTIuNDYsMi41My00LjQ2LDQuNzgtNi4wMiwxLjM5LS45MSwzLjI5LTEuNjQsNS42OC0yLjE4LDIuMzktLjU0LDQuOC0uODIsNy4yMS0uODIuOTUsMCwxLjg3LjA1LDIuNzUuMTQsNS42Ny42NiwxMC42MiwyLjkzLDE0Ljg2LDYuNzlsLS45Myw5LjA1aC0uODFsLS41OC0xLjA2Yy0uNC0uNjktMS4wMS0xLjU5LTEuODMtMi42OXMtMS44Ny0yLjI4LTMuMTMtMy41M2MtMS4yNy0xLjI1LTIuNzgtMi40NC00LjUyLTMuNTktMS43NS0xLjE1LTMuNzQtMi4xMS01Ljk5LTIuOS0uMTctLjA3LS43NS0uMjEtMS43NC0uNDFzLTIuMS0uMzEtMy4zMy0uMzFjLS41NywwLTEuMTIuMDQtMS42OC4xMi0yLjMzLjUtNC4xNiwxLjE5LTUuNDgsMi4wN2wtLjU0LjM3Yy0uMjkuMjYtLjU5LjU5LS44OS45OHMtLjU2Ljg1LS43NiwxLjM4Yy0uMjEuNTItLjMxLDEuMS0uMzEsMS43NCwwLDEuODksMS4wOSwzLjg4LDMuMjcsNS45OCwyLjY0LDIuNTIsNy4wNCw1LjE1LDEzLjIsNy44OCw1LjY4LDIuNDgsMTAuNDMsNC45OCwxNC4yNSw3LjQ5LDMuODEsMi41MSw2LjY5LDUuMTMsOC42Miw3Ljg0czIuOSw1LjY1LDIuOSw4LjhjMCw0LjMyLTEuODYsOS4xOS01LjU5LDE0LjYxLS4zNi41OC0uNjYsMS4wMS0uODksMS4zLS40LjU0LS42MS44MS0uNjIuODEtMi42NiwzLjE1LTYuMTUsNS4zNS0xMC40Nyw2LjYyLTMuNDQuOTctNi44LDEuNDUtMTAuMSwxLjQ1WiIvPgogICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNNDAxLjI4LDU0OC4wOGMtNC42NCwwLTkuMDktLjg3LTEzLjM1LTIuNjEtNC40My0xLjc5LTguMzQtNC4zOS0xMS43NC03Ljc5LTMuNC0zLjQtNi03LjMyLTcuNzktMTEuNzQtMS43NC00LjI5LTIuNjEtOC43NC0yLjYxLTEzLjM1cy44Ny05LjA2LDIuNjEtMTMuMzVjMS43OS00LjQzLDQuMzktOC4zNCw3Ljc5LTExLjc0czcuMzItNiwxMS43NC03Ljc5YzQuMjYtMS43Miw4LjcxLTIuNTksMTMuMzUtMi42MWguNDNjNS4xOS4xMSw5LjM4LjkzLDEyLjU4LDIuNDYsMi4xOSwxLjAyLDQuMDEsMi4yNCw1LjQ2LDMuNjYsMS43OSwxLjc3LDMuMTUsMy42NCw0LjA3LDUuNjEuOTIsMS45NywxLjUzLDMuODUsMS44NCw1LjYycy40NywzLjIzLjQ3LDQuMzYtLjAxLDEuNzQtLjA0LDEuODJ2LjQxaC01NS45NmMtLjI4LDEuNjEtLjQxLDMuMjQtLjQxLDQuODgsMCwzLjY2LjgxLDcuODEsMi40NCwxMi40N3M0LjczLDkuMzIsOS4zMSwxMy45OGM0LjMsNC4yNSw4Ljk5LDcuMzUsMTQuMDcsOS4zMSw0LjE4LDEuNjMsOC4zMSwyLjQ0LDEyLjQsMi40NC44NiwwLDIuNzMtLjEyLDUuNjEtLjM2LDIuODgtLjI0LDYuMjQtMS44LDEwLjA2LTQuNjcsMS4zNC0xLjE1LDIuNDUtMi4yMiwzLjMzLTMuMjNsLjc3LjM5Yy0uNDMuNDgtLjg3Ljk2LTEuMzIsMS40My0zLjQxLDMuMzktNy4zMyw1Ljk5LTExLjc2LDcuNzgtNC4yOSwxLjc0LTguNzQsMi42MS0xMy4zNSwyLjYxWk00MTguNjgsNTAwLjIxYy0uMTQtMy4zLS44NS02LjA3LTIuMTQtOC4zMi0xLjI5LTIuMjUtMi44OC00LjA3LTQuNzYtNS40NnMtMy43Ny0yLjQ2LTUuNjctMy4xOWMtMS45LS43My0zLjUxLTEuMjMtNC44My0xLjQ5LS4wMSwwLS4wMiwwLS4wMi0uMDItLjc1LS4xNS0xLjQ5LS4yOC0yLjI0LS4zOWgtLjAyYy0xLjQ5LS4yMS0yLjk2LS4zMS00LjQxLS4zMS0yLjA3LDAtNC40NC4yOS03LjExLjg2LTIuNjcuNTctNS4zOSwxLjg2LTguMTQsMy44Ni0uOS43My0xLjc2LDEuNTEtMi41OCwyLjMzLS44Mi44Mi0xLjU4LDEuNjctMi4yOSwyLjUzaC0uMDJjLTIuMDgsMi44Ny0zLjQ4LDYuMDctNC4xOCw5LjZoNDguNDFaTTM5Mi4zMyw0NzEuNjNsLS41Mi0uNjIsMy41LTIuOSwzLjU0LTYuMzMuNjYtLjQ4LDIuMTUsMi42My05LjMzLDcuN1oiLz4KICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTUwMS42MSw1NDguMDRoLS4yOWMtNC4zMiwwLTguNi0uNzgtMTIuODUtMi4zNC00LjI4LTEuNi04LjAzLTMuODYtMTEuMjctNi43OS0zLjI0LTIuOTItNS43OS02LjM2LTcuNjctMTAuMzFzLTIuODktOC4wMy0zLjA0LTEyLjI1aDkuNTJ2LjUyYzAsMi45OC4zOSw2LjIsMS4xOCw5LjY3LDEuMjMsNS40NiwzLjU0LDEwLjAyLDYuOTMsMTMuNjgsNC4yNCw0LjU4LDEwLjE4LDYuOTEsMTcuODQsNi45OSwzLjg4LS4wOCw3LjU0LS43NywxMC45OC0yLjA2LDMuNDQtMS4yOSw2LjQ1LTMuMDksOS4wMS01LjQxLDIuMzItMi4xNSw0LjEtNC42LDUuMzYtNy4zNSwxLjI1LTIuNzQsMS44OC01LjUzLDEuODgtOC4zNiwwLTEuMS0uMS0yLjItLjMxLTMuMjktLjY2LTMuMi0xLjk1LTYuMDctMy44Ny04LjYxLTMuMzktNC40OC04LjEyLTguMy0xNC4xOC0xMS40NC0zLjE5LTEuNjQtNi40Mi0zLjE3LTkuNjktNC41OS0yLjc2LTEuMjEtNS41LTIuNS04LjI0LTMuODctOC4xOC00LjA3LTEzLjA1LTguMTUtMTQuNTktMTIuMjUtLjQ3LTEuMjEtLjctMi40OC0uNy0zLjgxLDAtMS4yNi4yMS0yLjUzLjY0LTMuODMuODctMi41NSwyLjM2LTQuNzIsNC40Ny02LjUyLDMuOTYtMy4yNiw5LjIxLTQuOTEsMTUuNzUtNC45Nyw0LjI1LDAsOC4zOC43MywxMi40LDIuMTksNC4wMSwxLjQ2LDcuNjEsMy41NiwxMC43OCw2LjI5bC0xLjAxLDkuNzctLjgzLS4wOC0uODUtMi4zMmMtLjg3LTIuMTgtMS45NS0zLjk2LTMuMjMtNS4zNC0yLjQ3LTIuNTctNS4yNi00LjY4LTguMzYtNi4zMy0zLjgyLTIuMDMtNy45MS0zLjA0LTEyLjI3LTMuMDRsLTEuNDMuMDRjLTQuNTQuNzMtOC4xOCwyLjM1LTEwLjkxLDQuODQtLjUuNjMtLjg3LDEuMzYtMS4xMSwyLjE2LS4yNC44MS0uMzYsMS42My0uMzYsMi40NywwLC45Mi4xNSwxLjgyLjQzLDIuNjkuNTcsMS41MiwxLjQyLDIuODYsMi41Niw0LjAxLDEuMTQsMS4xNiwyLjM4LDIuMTksMy43NCwzLjA4LDIuNCwxLjYxLDQuOTEsMy4wNCw3LjUzLDQuMjcsMi42MiwxLjIzLDUuMjgsMi40MSw3Ljk3LDMuNTMsMi4wNy44Nyw0LjEzLDEuNzcsNi4xNywyLjY5LDMuNzEsMS42NCw3LjIyLDMuNjQsMTAuNTIsNS45OCwzLjMsMi4zNSw2LjAzLDUuMjIsOC4xOCw4LjYzLDIuNDEsNC4wOCwzLjYyLDguMzksMy42MiwxMi45MSwwLDEuMjQtLjEsMi40OC0uMjksMy43My0uNCwyLjctMS4xNSw1LjM0LTIuMjUsNy45MXMtMi42LDQuODItNC41Miw2Ljc3Yy0uNzUuOTQtMS41NywxLjgxLTIuNDYsMi42My0yLjY4LDIuNDMtNS44Miw0LjMxLTkuNDMsNS42NC0zLjYxLDEuMzMtNy40MywyLjAyLTExLjQ4LDIuMDZaIi8+CiAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik01OTYuNDEsNTQ3LjgzaC05LjQybC0xLjg0LTIuMzJ2LTExLjc4Yy0yLjYxLDUuNDUtNS45Nyw5LjM4LTEwLjEsMTEuOC0yLjU5LDEuNTMtNS4yMywyLjMtNy45MSwyLjNsLS43NS0uMDJjLTMuNzktLjI4LTcuMjgtMS45My0xMC40NS00Ljk3LTIuODYtMi44LTUuMDgtNi40NC02LjY2LTEwLjkxLTEuMDMtMi45Ny0xLjU1LTUuNzUtMS41NS04LjM0LDAtLjYyLjAzLTEuMjMuMDgtMS44Mi41NC00LjY2LDIuNjgtOC44LDYuNDQtMTIuNDIsMS42Ni0xLjUsMy40MS0yLjgsNS4yNi0zLjksMS44NS0xLjEsMy43LTIuMTEsNS41Ny0zLjAzbDIwLjA3LTEwLjI0di0xLjFjMC0xLjY3LS4yMi0zLjI1LS42NS00LjczLS40My0xLjQ4LTEuMS0yLjgtMS45OS0zLjk1LS44OS0xLjE1LTIuMDItMi4wNi0zLjM4LTIuNzItMS4zNy0uNjYtMi45OS0uOTktNC44Ni0uOTktLjcsMC0xLjQ1LjA1LTIuMjIuMTctLjc4LjExLTEuNTkuMjYtMi40My40Ni0zLjYuOTUtNi4yNCwyLjQ2LTcuOTEsNC41MS0xLjMsMS42LTIuMDYsMy4yMS0yLjI4LDQuODItLjA4LjYzLS4xMiwxLjEtLjEyLDEuNDFoLS44M2wtMy4wNi02LjIzYzguMjYtNC4xMSwxNS4yLTYuMTcsMjAuODItNi4xNywzLjM5LDAsNi4yNy43Niw4LjYzLDIuMjhsLjAyLjAyYy4xNy4wNi42Mi4zOSwxLjM2Ljk5Ljc0LjYxLDEuNTQsMS41NSwyLjQyLDIuODIuODgsMS4yOCwxLjYsMi45NiwyLjE4LDUuMDYuNDYsMi4wNi42OCwzLjU5LjY4LDQuNjJ2NTEuMjJsNC44OCwyLjM0di44M1pNNTcwLjcsNTQ0LjRjMS4yMywwLDIuNDEtLjE5LDMuNTQtLjU2LDIuMjItLjcyLDQuMTMtMS44OSw1LjcxLTMuNTIsMi0yLjI4LDMuNzMtNS4xNSw1LjE5LTguNjF2LTM4LjZsLTE1Ljk2LDguMTVjLTEuNDkuOS0zLjExLDIuMTItNC44NiwzLjY4LTIuNDMsMi4xNy00LjQ0LDQuNjEtNi4wMiw3LjMzLTEuOTcsMy4zNy0yLjk2LDYuOTMtMi45NiwxMC42OCwwLDIuMjYuNDEsNC42OCwxLjI0LDcuMjQsMS43Miw1LjA4LDMuOSw4Ljc4LDYuNTQsMTEuMTEsMi4zLDIuMDYsNC44MywzLjA4LDcuNTcsMy4wOFoiLz4KICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTYyNi41MSw1NDcuODNoLTE2LjE2di0uODNsNC44OC0yLjM0di04MC4zMmwtNC44OC0yLjM0di0uODNoOS40MmwxLjg2LDIuM3Y4MS4xOWw0Ljg4LDIuMzR2LjgzWiIvPgogICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNNjU2LjYxLDU0Ny44M2gtMTYuMTZ2LS44M2w0Ljg4LTIuMzR2LTYzLjg1bC00Ljg4LTIuMzR2LS44M2g5LjQ0bDEuODQsMi4zdjY0LjcybDQuODgsMi4zNHYuODNaTTY0OC4zNSw0NzMuMThjLS45MiwwLTEuNzItLjMzLTIuMzgtLjk4LS42Ni0uNjYtLjk5LTEuNDUtLjk5LTIuMzlzLjMzLTEuNzEuOTktMi4zN2MuNjYtLjY2LDEuNDYtLjk4LDIuMzgtLjk4czEuNzMuMzMsMi4zOS45OC45OCwxLjQ1Ljk4LDIuMzctLjMzLDEuNzQtLjk4LDIuMzktMS40NS45OC0yLjM5Ljk4WiIvPgogICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNNzYzLjY0LDU0Ny44M2gtMTYuMTZ2LS44M2w0Ljg4LTIuMzR2LTUxLjk3YzAtMS4wMS0uMDktMi4yOS0uMjctMy44NS0uNDctMy45Mi0xLjU3LTYuODItMy4zMS04LjcxLTEuMDUtMS4xMi0yLjQ3LTEuNjgtNC4yNi0xLjY4LTEuMzEsMC0yLjY5LjI4LTQuMTQuODUtMy4yNywxLjI4LTYuMzUsNC45NC05LjIzLDEwLjk3LTIuNTMsNS40LTQuNzMsMTIuNS02LjYyLDIxLjMyLTEuMzUsNi41MS0yLjM2LDEyLjQzLTMuMDEsMTcuNzYtLjY2LDUuMzMtMS4wNiw4Ljk4LTEuMjEsMTAuOTd2NC4zNWw0Ljg4LDIuMzR2LjgzaC0xNi4xNHYtLjgzbDQuODgtMi4zNHYtNTEuOTVjLS4wNC0zLjEzLS40OC01Ljk5LTEuMzItOC41OS0uNTItMS41Ny0xLjI4LTIuOS0yLjI4LTMuOTctMS4wNi0xLjEzLTIuNDUtMS43LTQuMTYtMS43LTEuNDYsMC0yLjkzLjMxLTQuNDEuOTQtMS40OC42My0yLjk3LDEuOC00LjQ5LDMuNTItMS41MiwxLjcyLTMuMDQsNC4xOC00LjU1LDcuMzgtMi41NCw1LjQtNC43NSwxMi40OS02LjY0LDIxLjMtMS40MSw2Ljg5LTIuNDQsMTMuMDgtMy4xLDE4LjU3LS42Niw1LjUtMS4wNCw5LjA1LTEuMTQsMTAuNjV2My44M2w0Ljg4LDIuMzR2LjgzaC0xNi4xNnYtLjgzbDQuODgtMi4zNHYtNjMuODVsLTQuODgtMi4zNHYtLjgzaDkuNDRsMS44NCwyLjMydjUyLjY5Yy44My03LjE2LDEuOTctMTQuMjMsMy40NC0yMS4yMSwxLjktOC44Nyw0LjE0LTE2LjAzLDYuNzEtMjEuNDgsMy4yNC02Ljg4LDYuOTQtMTAuODQsMTEuMDktMTEuODgsMS4yMS0uMjksMi4zNi0uNDMsMy40NC0uNDMsMi41NCwwLDQuNzUuNzksNi42NCwyLjM4LjE3LDAsLjguNjcsMS45LDIuMDEuOTUsMS4xNiwxLjksMi45OSwyLjg2LDUuNS45NCwyLjY2LDEuNjEsNS44LDIuMDEsOS40LjIzLDIuMjIuMzcsNC4yNC4zOSw2LjA0LjAzLjc5LjA0LDIuNjguMDQsNS42OWwtLjA0LDIzLjYzYy45MS03LjUyLDIuMDUtMTQuNDcsMy40Mi0yMC44NiwxLjktOC44Nyw0LjEzLTE2LjAzLDYuNjgtMjEuNDgsMy4yNC02Ljg4LDYuOTUtMTAuODQsMTEuMTEtMTEuODgsMS4yMS0uMjksMi4zNy0uNDMsMy40Ni0uNDMsMi41MiwwLDQuNzMuNzksNi42MiwyLjM2bC4wNC4wNGMuMjguMTcuODkuODMsMS44NCwxLjk5czEuOSwyLjk5LDIuODYsNS41Yy45NCwyLjY2LDEuNjEsNS44LDIuMDEsOS40LjI1LDIuMjIuMzksNC4yNC40MSw2LjA0LjAxLjYyLjAyLDMuMDIuMDIsNy4ybC0uMDIsMzQuNSw0Ljg4LDIuMzR2LjgzWiIvPgogICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNODU1LjkyLDU0OC41NmMtNS43NCwwLTExLjI4LTEuMDgtMTYuNjItMy4yMy01LjUtMi4yNC0xMC4zOC01LjQ3LTE0LjYxLTkuNzItNC4yNC00LjI0LTcuNDctOS4xMS05LjcxLTE0LjYtMi4xNy01LjM1LTMuMjUtMTAuOS0zLjI1LTE2LjY0LjAxLTUuNzcsMS4xLTExLjMxLDMuMjUtMTYuNjIsMi4yNC01LjUsNS40Ny0xMC4zOCw5LjcxLTE0LjYxLDQuMjQtNC4yNCw5LjExLTcuNDcsMTQuNjEtOS43MSw1LjM0LTIuMTcsMTAuODgtMy4yNSwxNi42Mi0zLjI1czExLjI5LDEuMDgsMTYuNjQsMy4yNWMyLjI0LjkxLDQuMzcsMS45OSw2LjQyLDMuMjNsLjQxLDExLjEzLS44My4wNGMtMS4zLTIuMjItMi4zOS0zLjc3LTMuMjgtNC42NC0uODktLjg3LTEuNDgtMS4zNy0xLjc3LTEuNTEtLjEtLjA1LS4xNC0uMDktLjE0LS4xLTUuNDQtMy40NS0xMS4wOC01LjY5LTE2LjkzLTYuNzMtMi40My0uNDMtNC44Mi0uNjQtNy4xOC0uNjQtMy4zMSwwLTcuMTEuNTgtMTEuNCwxLjc0LTQuMjksMS4xNi04LjQ5LDMuNzUtMTIuNTgsNy43Ni0zLjU3LDMuNjMtNi4xMyw3Ljc5LTcuNjgsMTIuNS0xLjIyLDMuNjctMS44Miw3LjQ4LTEuODIsMTEuNDIsMCwxLjEyLjEzLDMuMjYuMzksNi40Mi4yNiwzLjE2LDEuNTcsNy4yNSwzLjkzLDEyLjI4czUuNjYsOS42OSw5Ljg5LDEzLjk4YzQuMjgsNC4yNCw4LjkzLDcuNTMsMTMuOTcsOS44OSw2LjE1LDIuODgsMTIuMzYsNC4zMywxOC42Myw0LjMzLDMuOTcsMCw4LjA2LS42OSwxMi4yNS0yLjA3czguMTEtMy44NiwxMS43NC03LjQ1Yy41NC0uNTIsMS4wNS0xLjA2LDEuNTMtMS42MWwuNzcuMzljLS41NC42Mi0xLjEsMS4yMy0xLjcsMS44Mi00LjI1LDQuMjQtOS4xMiw3LjQ3LTE0LjYxLDkuNzEtNS4zNSwyLjE1LTEwLjksMy4yMy0xNi42NCwzLjIzWiIvPgogICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNOTE3Ljc2LDU0Ny45Yy0yLjU0LDAtNC43NS0uNzktNi42NC0yLjM4LS4yNi0uMjItLjUyLS40Ni0uNzctLjctMy4xMi0zLjEzLTUuMTItOC41My02LTE2LjItLjIyLTIuMTktLjM1LTQuMTktLjM5LTUuOThsLS4wMi0xLjgyYy4wMS0xLjMuMDItMTQuNjEuMDItMzkuOTRsLTQuODgtMi4zNHYtLjgzaDkuNDJsMS44NiwyLjMydjUyLjg4Yy4wMSwxLjAyLjExLDIuMzEuMjksMy44Ni4xOCwxLjU1LjUzLDMuMTIsMS4wNiw0LjY5LDEuMiwzLjY2LDMuMjcsNS41Myw2LjIxLDUuNjMuOTktLjAzLDIuMDMtLjE3LDMuMS0uNDEsMy45LS45OCw3LjQyLTQuNzksMTAuNTUtMTEuNDIsMi41Mi01LjM5LDQuNzMtMTIuNDksNi42Mi0yMS4zLDEuNDEtNi45LDIuNDUtMTMuMSwzLjExLTE4LjYuNjctNS41LDEuMDUtOS4wNCwxLjEzLTEwLjYzdi0zLjgzbC00Ljg4LTIuMzR2LS44M2g5LjQ0bDEuODQsMi4zMnY2NC42MWw0Ljg4LDIuMzR2LjgzaC05LjQybC0xLjg2LTIuMzJ2LTUyLjYxYy0uODMsNy4xOS0xLjk3LDE0LjI2LTMuNDQsMjEuMjEtMS44OSw4Ljg3LTQuMTIsMTYuMDMtNi42OCwyMS40OC0zLjI0LDYuODktNi45NSwxMC44NS0xMS4xMSwxMS44OC0xLjIuMjktMi4zNS40My0zLjQ0LjQzWiIvPgogICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNOTgzLjgxLDU0Ny44M2gtMTYuMTZ2LS44M2w0Ljg4LTIuMzR2LTYzLjgxbC00Ljg4LTIuMzR2LS44M2g5LjQybDEuODYsMi4zdjUyLjY3Yy43OS03LjA1LDEuOTMtMTQuMTIsMy40NC0yMS4yMSwxLjktOC44Nyw0LjEzLTE2LjAzLDYuNjgtMjEuNDgsMy4yNC02Ljg4LDYuOTUtMTAuODQsMTEuMTEtMTEuODgsMS4yLS4yOSwyLjM0LS40MywzLjQ0LS40MywxLjYxLDAsMy4xLjMyLDQuNDcuOTdsLTEuMiwxMi41OGgtLjgzbC0uODMtMS41MWMtLjU1LTEuMDEtMS4zLTIuMTItMi4yNi0zLjMzLS45NS0xLjIxLTIuMDQtMi4yLTMuMjctMi45Ni0uNzktLjQ3LTEuNi0uNy0yLjQ0LS43LS40OCwwLTEuMi4xNC0yLjE1LjQyLS45NS4yOC0yLjEzLDEuNTYtMy41NCwzLjg0LTMuMjcsNS42Mi02LjA2LDEzLjgzLTguMzgsMjQuNjUtMS40Miw2Ljg4LTIuNDYsMTMuMDgtMy4xMSwxOC41OC0uNjYsNS41MS0xLjAzLDkuMDUtMS4xMywxMC42NHYzLjgzbDQuODgsMi4zNHYuODNaIi8+CiAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xMDEwLjg3LDU5OC4yMXMtLjY5LDAtMi4wMy0uMDFjLTEuMzQsMC0yLjk5LS41MS00Ljk1LTEuNTJzLTMuNDQtMi4xNy00LjQzLTMuNWwtLjAyLS4wNCw2LjU2LTYuMjEuOTcuNzljMS44NSwxLjU0LDQuMDEsMi43NSw2LjUsMy42MiwxLjUzLjU0LDMuMTEuODEsNC43Mi44MSwzLjY4LDAsNy0xLjc3LDkuOTUtNS4zLDIuOTQtMy43OSw1LjQtNy44Nyw3LjM5LTEyLjI0LDEuOTktNC4zNywzLjY2LTguODMsNS4wMy0xMy4zOCwxLjM3LTQuNTUsMi41OS05LjAyLDMuNjgtMTMuNDFsLTE2LjU4LTY2Ljk5LTUuNjctMi4zNHYtLjgzaDE2LjMzdi44M2wtNC4wOCwyLjM0LDEzLjI5LDUzLjczLDEzLjI5LTUzLjczLTQuMDgtMi4zNHYtLjgzaDEwLjZ2LjgzbC01LjY1LDIuMzQtMTYuNiw2Ny4wMWMtMS4xLDQuNDQtMi4zNSw4Ljk3LTMuNzQsMTMuNi0xLjM5LDQuNjItMy4wOSw5LjE1LTUuMTEsMTMuNTktMi4wMiw0LjQ0LTQuNTQsOC41OS03LjU0LDEyLjQ1LTMuMTcsMy45Mi02LjI4LDYuNjktOS4zMiw4LjMxcy01Ljg4LDIuNDMtOC41MiwyLjQzWiIvPgogIDwvZz4KICA8Zz4KICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTI1LjIzLDYxOS44MWMtMi43MywwLTUuMDItLjQzLTYuOS0xLjI4LTEuODctLjg1LTMuMjktMi4xMS00LjI0LTMuNzYtLjk2LTEuNjUtMS40NC0zLjY3LTEuNDQtNi4wNCwwLTMuNTQsMS4wOC02LjI3LDMuMjUtOC4xOXM1LjIzLTIuODksOS4yMS0yLjg5YzIuMzUsMCw0LjQyLjI5LDYuMjEuODYsMS43OS41NywzLjE5LDEuNDUsNC4yLDIuNjIsMS4wMSwxLjE4LDEuNTEsMi42OCwxLjUxLDQuNTFoLTIuMjJjMC0xLjQ4LS40MS0yLjY2LTEuMjItMy41NnMtMS45NS0xLjU0LTMuNDItMS45NGMtMS40Ny0uNC0zLjE3LS41OS01LjEtLjU5cy0zLjcuMzEtNS4yMy45MmMtMS41My42MS0yLjc0LDEuNTctMy42MiwyLjg2cy0xLjMzLDIuOTUtMS4zMyw0Ljk5di43NWMwLDIuMTQuNDUsMy44NiwxLjM0LDUuMTUuOSwxLjI5LDIuMTIsMi4yMywzLjY4LDIuODEsMS41Ni41OCwzLjM0Ljg3LDUuMzQuODdzMy42Mi0uMjEsNS4wNi0uNjJjMS40NC0uNDIsMi41NS0xLjA3LDMuMzYtMS45N3MxLjItMi4wNiwxLjItMy41aDIuMThjMCwxLjgzLS41MSwzLjM0LTEuNTMsNC41My0xLjAyLDEuMTktMi40MiwyLjA2LTQuMiwyLjYyLTEuNzguNTYtMy44MS44NC02LjEuODRaIi8+CiAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik00NC4xNCw2MTkuNDR2LTIxLjQxaDIuMjJ2MjEuNDFoLTIuMjJaIi8+CiAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik01NC40MSw2MTkuNDR2LTIxLjQxaDE1LjMyYzEuMzMsMCwyLjQ3LjI3LDMuNDIuOC45NS41MywxLjY3LDEuMjYsMi4xNywyLjIuNS45NC43NSwyLC43NSwzLjE4LDAsMS4zOS0uMzYsMi42Mi0xLjA4LDMuNjgtLjcyLDEuMDYtMS43NSwxLjgtMy4xMSwyLjIybDQuNzEsOS4zM2gtMi40N2wtNC41My04Ljk5aC0xMi45OHY4Ljk5aC0yLjIyWk01Ni42Miw2MDguNTVoMTIuNzZjMS4zOSwwLDIuNDgtLjQxLDMuMjYtMS4yMi43OC0uODEsMS4xNy0xLjg0LDEuMTctMy4wOSwwLS44NS0uMTgtMS42LS41My0yLjI1LS4zNS0uNjQtLjg2LTEuMTUtMS41MS0xLjUxLS42Ni0uMzYtMS40NS0uNTUtMi4zOS0uNTVoLTEyLjc2djguNjFaIi8+CiAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik05My4yLDYxOS44MWMtMi40OCwwLTQuNTEtLjM4LTYuMS0xLjE0LTEuNTktLjc2LTIuNzctMS44Ni0zLjU0LTMuMjktLjc3LTEuNDQtMS4xNS0zLjE1LTEuMTUtNS4xNXYtMTIuMmgyLjE4djEyLjM5YzAsMi40MS43NCw0LjI3LDIuMjMsNS41NiwxLjQ5LDEuMjksMy42MiwxLjk0LDYuMzgsMS45NHM0Ljg5LS42NCw2LjM4LTEuOTRjMS40OS0xLjI5LDIuMjMtMy4xNCwyLjIzLTUuNTZ2LTEyLjM5aDIuMTh2MTIuMmMwLDItLjM4LDMuNzEtMS4xNSw1LjE1LS43NywxLjQ0LTEuOTUsMi41My0zLjU0LDMuMjktMS41OS43Ni0zLjYzLDEuMTQtNi4xLDEuMTRaIi8+CiAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xMTEuNzcsNjE5LjQ0di0yMS40MWgxNS4zMmMxLjMzLDAsMi40Ny4yNywzLjQyLjguOTUuNTMsMS42NywxLjI2LDIuMTcsMi4yLjUuOTQuNzUsMiwuNzUsMy4xOCwwLDEuMzktLjM2LDIuNjItMS4wOCwzLjY4LS43MiwxLjA2LTEuNzUsMS44LTMuMTEsMi4yMmw0LjcxLDkuMzNoLTIuNDdsLTQuNTMtOC45OWgtMTIuOTh2OC45OWgtMi4yMlpNMTEzLjk5LDYwOC41NWgxMi43NmMxLjM5LDAsMi40OC0uNDEsMy4yNi0xLjIyLjc4LS44MSwxLjE3LTEuODQsMS4xNy0zLjA5LDAtLjg1LS4xOC0xLjYtLjUzLTIuMjUtLjM1LS42NC0uODYtMS4xNS0xLjUxLTEuNTEtLjY2LS4zNi0xLjQ1LS41NS0yLjM5LS41NWgtMTIuNzZ2OC42MVoiLz4KICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTE1Mi4yNSw2MTkuODFjLTQuMzMsMC03LjU2LS45Mi05LjcxLTIuNzYtMi4xNC0xLjg0LTMuMjEtNC42MS0zLjIxLTguMzIsMC0yLjQxLjUzLTQuNDQsMS41OS02LjA5LDEuMDYtMS42NCwyLjYtMi44OSw0LjYtMy43MywyLjAxLS44NCw0LjM5LTEuMjYsNy4xNi0xLjI2LDEuOTQsMCwzLjY2LjE1LDUuMTguNDQsMS41Mi4yOSwyLjguNzUsMy44NSwxLjM5LDEuMDUuNjMsMS44NSwxLjQ0LDIuMzksMi40LjU0Ljk3LjgxLDIuMTMuODEsMy40OGgtMi4xMmMwLTEuMjEtLjI4LTIuMi0uODMtMi45Ny0uNTUtLjc3LTEuMy0xLjM2LTIuMjYtMS43Ni0uOTYtLjQxLTIuMDMtLjY5LTMuMjMtLjg0LTEuMi0uMTYtMi40NS0uMjMtMy43Ni0uMjMtMS40OCwwLTIuODguMTUtNC4yMS40NS0xLjMzLjMtMi41Mi43OS0zLjU2LDEuNDctMS4wNC42OC0xLjg2LDEuNTgtMi40NywyLjctLjYsMS4xMi0uOTEsMi41LS45MSw0LjEydi43NWMwLDIuMTYuNDUsMy44OSwxLjM2LDUuMTguOTEsMS4yOSwyLjE0LDIuMjMsMy43MSwyLjgxLDEuNTcuNTgsMy4zNy44Nyw1LjM4Ljg3LDIuNzMsMCw0Ljg3LS4zLDYuNDQtLjkxLDEuNTctLjYsMi42OC0xLjQ0LDMuMzQtMi41MS42Ni0xLjA3Ljk4LTIuMzEuOTgtMy43M3YtLjYyaC0xMC41NXYtMS44N2gxMi43djExLjE3aC0xLjcybC0uMzEtMy40M2MtLjcxLjk2LTEuNjMsMS43MS0yLjc2LDIuMjZzLTIuMzguOTUtMy43NSwxLjE5Yy0xLjM2LjI0LTIuNzUuMzYtNC4xNy4zNloiLz4KICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTE3Mi43Myw2MTkuNDR2LTIxLjQxaDIuMjJ2MjEuNDFoLTIuMjJaIi8+CiAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xODAuNTMsNjE5LjQ0bDExLjAyLTIxLjQxaDIuNjhsMTEuMDIsMjEuNDFoLTIuNDNsLTMtNS44NGgtMTMuOTVsLTMsNS44NGgtMi4zNFpNMTg2LjgsNjExLjdoMTIuMDVsLTMuNzUtNy4zM2MtLjE1LS4yNy0uMzEtLjU5LS41LS45Ny0uMTktLjM3LS4zOC0uNzYtLjU4LTEuMTctLjItLjQxLS4zOC0uODEtLjU2LTEuMi0uMTgtLjQtLjM0LS43My0uNDgtMWgtLjI1Yy0uMjMuNDgtLjQ4LDEtLjc2LDEuNTgtLjI4LjU3LS41NSwxLjExLS44LDEuNjEtLjI1LjUtLjQ1Ljg4LS41OSwxLjE1bC0zLjc4LDcuMzNaIi8+CiAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0yMjIuNDUsNjE5LjQ0di0yMS40MWgxNC43YzEuMzMsMCwyLjQ3LjI4LDMuNDIuODMuOTUuNTUsMS42OCwxLjMxLDIuMTgsMi4yNnMuNzYsMi4wNS43NiwzLjI4LS4yNSwyLjMyLS43NSwzLjI4Yy0uNS45Ni0xLjIyLDEuNzEtMi4xNywyLjI2LS45NS41NS0yLjA5LjgzLTMuNDIuODNoLTEyLjUydjguNjhoLTIuMjJaTTIyNC42Niw2MDguODNoMTIuMTRjMS40OCwwLDIuNTktLjQxLDMuMzYtMS4yMy43Ni0uODIsMS4xNC0xLjg5LDEuMTQtMy4yLDAtLjg3LS4xOC0xLjY1LS41NS0yLjMzLS4zNi0uNjgtLjg4LTEuMi0xLjU0LTEuNTgtLjY3LS4zNy0xLjQ3LS41Ni0yLjQtLjU2aC0xMi4xNHY4Ljg5WiIvPgogICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMjQ5LjE2LDYxOS40NHYtMjEuNDFoMi4yMnYxOS40OGgxMy4zdjEuOTRoLTE1LjUxWiIvPgogICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMjY3Ljg5LDYxOS40NGwxMS4wMi0yMS40MWgyLjY4bDExLjAyLDIxLjQxaC0yLjQzbC0zLTUuODRoLTEzLjk1bC0zLDUuODRoLTIuMzRaTTI3NC4xNiw2MTEuN2gxMi4wNWwtMy43NS03LjMzYy0uMTUtLjI3LS4zMS0uNTktLjUtLjk3LS4xOS0uMzctLjM4LS43Ni0uNTgtMS4xNy0uMi0uNDEtLjM4LS44MS0uNTYtMS4yLS4xOC0uNC0uMzQtLjczLS40OC0xaC0uMjVjLS4yMy40OC0uNDgsMS0uNzYsMS41OC0uMjguNTctLjU1LDEuMTEtLjgsMS42MS0uMjUuNS0uNDUuODgtLjU5LDEuMTVsLTMuNzgsNy4zM1pNMjc4LjM4LDU5Ni40NGwzLjY1LTQuMTJoMi44NHYuMTJsLTQuNTYsMy45OWgtMS45NFoiLz4KICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTMwNy45Niw2MTkuODFjLTEuNDIsMC0yLjc5LS4wOC00LjEyLS4yNS0xLjMzLS4xNy0yLjUyLS40Ny0zLjU3LS45Mi0xLjA1LS40NS0xLjg4LTEuMDktMi41LTEuOTQtLjYxLS44NC0uOTItMS45Mi0uOTItMy4yMywwLS4xNSwwLS4yNy4wMi0uMzcsMC0uMS4wMi0uMTguMDItLjIyaDIuMjJjLS4wMi4xMi0uMDQuMjYtLjA1LjQxLS4wMS4xNS0uMDIuMzMtLjAyLjU2LDAsLjg3LjM1LDEuNjEsMS4wNiwyLjIyLjcxLjYsMS43MywxLjA2LDMuMDcsMS4zNywxLjM0LjMxLDIuOTMuNDcsNC43Ni40Ny44OSwwLDEuNzYtLjA0LDIuNjEtLjEyczEuNjItLjIzLDIuMzMtLjQ0Yy43MS0uMjEsMS4zMy0uNDcsMS44Ny0uOC41NC0uMzIuOTYtLjcxLDEuMjYtMS4xNy4zLS40Ni40NS0uOTkuNDUtMS41OSwwLS44NS0uMjYtMS41NC0uNzgtMi4wNi0uNTItLjUyLTEuMjMtLjk0LTIuMTQtMS4yNi0uOTEtLjMyLTEuOTItLjU4LTMuMDQtLjc4LTEuMTItLjItMi4yOC0uMzgtMy40Ni0uNTYtMS4xOS0uMTgtMi4zNC0uMzktMy40Ni0uNjQtMS4xMi0uMjUtMi4xNC0uNTgtMy4wNC0xcy0xLjYyLS45Ny0yLjE0LTEuNjUtLjc4LTEuNTUtLjc4LTIuNTljMC0uNzMuMTgtMS40Mi41My0yLjA5LjM1LS42Ny45My0xLjI2LDEuNzMtMS43OS44LS41MywxLjg2LS45NSwzLjE4LTEuMjUsMS4zMi0uMywyLjk3LS40NSw0Ljk1LS40NXMzLjY0LjE4LDQuOTIuNTMsMi4yOC44MiwzLDEuMzljLjcyLjU3LDEuMjEsMS4xOCwxLjQ4LDEuODMuMjcuNjUuNDEsMS4yNi40MSwxLjg0di42NmgtMi4xOHYtLjcyYzAtLjYyLS4yOC0xLjIxLS44My0xLjc1LS41NS0uNTQtMS4zNy0uOTktMi40NS0xLjM0LTEuMDgtLjM1LTIuNDUtLjUzLTQuMDktLjUzLTEuODEsMC0zLjM0LjE0LTQuNTkuNDItMS4yNS4yOC0yLjIuNjgtMi44NCwxLjItLjY1LjUyLS45NywxLjE4LS45NywxLjk3LDAsLjc1LjI3LDEuMzUuOCwxLjgxLjUzLjQ2LDEuMjUuODMsMi4xNSwxLjExLjkxLjI4LDEuOTEuNTIsMy4wMy43MiwxLjExLjIsMi4yNi4zOSwzLjQ1LjU4LDEuMTkuMTksMi4zNC40MSwzLjQ2LjY3LDEuMTIuMjYsMi4xNC42MSwzLjA0LDEuMDYuOTEuNDUsMS42MiwxLjAyLDIuMTUsMS43Mi41My43LjgsMS41OC44LDIuNjQsMCwxLjU4LS40NSwyLjg0LTEuMzYsMy43OHMtMi4xNywxLjYtMy43OSwyYy0xLjYyLjQtMy41LjU5LTUuNjIuNTlaIi8+CiAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0zMzIuNDYsNjE5LjQ0di0xOS40OGgtOS44NnYtMS45NGgyMS45MXYxLjk0aC05LjgzdjE5LjQ4aC0yLjIyWiIvPgogICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMzQ5Ljg1LDYxOS40NHYtMjEuNDFoMi4yMnYyMS40MWgtMi4yMloiLz4KICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTM3MS43OSw2MTkuODFjLTIuNzMsMC01LjAyLS40My02LjktMS4yOC0xLjg3LS44NS0zLjI5LTIuMTEtNC4yNC0zLjc2LS45Ni0xLjY1LTEuNDQtMy42Ny0xLjQ0LTYuMDQsMC0zLjU0LDEuMDgtNi4yNywzLjI1LTguMTlzNS4yMy0yLjg5LDkuMjEtMi44OWMyLjM1LDAsNC40Mi4yOSw2LjIxLjg2LDEuNzkuNTcsMy4xOSwxLjQ1LDQuMiwyLjYyLDEuMDEsMS4xOCwxLjUxLDIuNjgsMS41MSw0LjUxaC0yLjIyYzAtMS40OC0uNDEtMi42Ni0xLjIyLTMuNTZzLTEuOTUtMS41NC0zLjQyLTEuOTRjLTEuNDctLjQtMy4xNy0uNTktNS4xLS41OXMtMy43LjMxLTUuMjMuOTJjLTEuNTMuNjEtMi43NCwxLjU3LTMuNjIsMi44NnMtMS4zMywyLjk1LTEuMzMsNC45OXYuNzVjMCwyLjE0LjQ1LDMuODYsMS4zNCw1LjE1LjksMS4yOSwyLjEyLDIuMjMsMy42OCwyLjgxLDEuNTYuNTgsMy4zNC44Nyw1LjM0Ljg3czMuNjItLjIxLDUuMDYtLjYyYzEuNDQtLjQyLDIuNTUtMS4wNywzLjM2LTEuOTdzMS4yLTIuMDYsMS4yLTMuNWgyLjE4YzAsMS44My0uNTEsMy4zNC0xLjUzLDQuNTMtMS4wMiwxLjE5LTIuNDIsMi4wNi00LjIsMi42Mi0xLjc4LjU2LTMuODEuODQtNi4xLjg0WiIvPgogICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMzg4LjI0LDYxOS40NGwxMS4wMi0yMS40MWgyLjY4bDExLjAyLDIxLjQxaC0yLjQzbC0zLTUuODRoLTEzLjk1bC0zLDUuODRoLTIuMzRaTTM5NC41MSw2MTEuN2gxMi4wNWwtMy43NS03LjMzYy0uMTUtLjI3LS4zMS0uNTktLjUtLjk3LS4xOS0uMzctLjM4LS43Ni0uNTgtMS4xNy0uMi0uNDEtLjM4LS44MS0uNTYtMS4yLS4xOC0uNC0uMzQtLjczLS40OC0xaC0uMjVjLS4yMy40OC0uNDgsMS0uNzYsMS41OC0uMjguNTctLjU1LDEuMTEtLjgsMS42MS0uMjUuNS0uNDUuODgtLjU5LDEuMTVsLTMuNzgsNy4zM1oiLz4KICA8L2c+Cjwvc3ZnPg==';
+
+let CATALOGO = {};
+let MODO_DESCONTO = 'manual';
+let PROCEDIMENTOS = [];
+let METODO_TITULO = 'MÉTODO DR. JOSÉ CURY - 01';
+let FORMATO_PDF = 'a4'; // 'a4' ou 'a3'
+let MOSTRAR_VALORES = false; // mostrar valor unitário na tabela de procedimentos
+let MODO_POS_OP = false; // orçamento de pós-operatório (oculta equipe médica e custos hospitalares)
+
+// Itens padrão do Kit Pós-Operatório (Dr. seleciona quais incluir no orçamento)
+const KIT_POS_ITENS_PADRAO = [
+  { id: 'cintas_cirurgicas', label: '02 Cintas Cirúrgicas (01 Linha Confort para a primeira semana, 01 Linha Super Confort com maior compressão)', marcado: true },
+  { id: 'cinta_segunda_etapa', label: '01 Cinta de Segunda Etapa (uso conforme evolução e recuperação da paciente)', marcado: true },
+  { id: 'placas_contencao', label: '04 Placas de Contenção para região abdominal, flancos, cóccix e sacral', marcado: true },
+  { id: 'meia_antitrombo', label: '01 Meia antitrombo', marcado: true },
+  { id: 'diprospan', label: '02 Diprospan', marcado: true },
+  { id: 'canaletas', label: '01 Par de Canaletas', marcado: false },
+  { id: 'colete', label: '01 Colete', marcado: false },
+  { id: 'sutias', label: '02 Sutiãs', marcado: false },
+  { id: 'bracadeiras', label: '02 Braçadeiras', marcado: false },
+  { id: 'mentoneira', label: '01 Mentoneira', marcado: false }
+];
+// Índice do procedimento que está sendo editado no modal de Kit
+let KIT_EDITANDO_IDX = null;
+// Taxas de gross-up: o cirurgião quer receber LÍQUIDO o valor X.
+// Para cada modalidade parcelada, calcula-se o valor BRUTO ao paciente:
+//   Valor bruto = Valor líquido ÷ (1 − Taxa)
+// Cada taxa representa a operadora de cartão / antecipação para aquela modalidade.
+let TAXAS_GROSSUP = {
+  parc_3: 5.97,    // 3x: bruto = líquido ÷ (1 - 0,0597)
+  parc_6: 7.74,    // 6x: bruto = líquido ÷ (1 - 0,0774)
+  parc_10: 10.50,  // 10x: bruto = líquido ÷ (1 - 0,1050)
+};
+// Nota: o valor líquido é calculado dinamicamente como soma dos PROCEDIMENTOS
+// (ver função calcular()). Não é mais uma variável separada.
+
+function fmtMoeda(v) {
+  return 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function hojeBR() {
+  const d = new Date();
+  return d.toISOString().split('T')[0];
+}
+
+function dataBR(iso) {
+  if (!iso) return '';
+  const [y, m, d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+function showToast(msg, type = '') {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = 'toast show ' + type;
+  setTimeout(() => toast.className = 'toast ' + type, 3000);
+}
+
+// ============================================================
+// LOCAL STORAGE — armazenamento persistente no navegador do usuário
+// As funções são async para manter compatibilidade com chamadas existentes
+// ============================================================
+
+function storageGet(key) {
+  try {
+    const v = localStorage.getItem(key);
+    return v ? JSON.parse(v) : null;
+  } catch(e) {
+    console.warn('[storage] falha ao ler:', key, e);
+    return null;
+  }
+}
+
+function storageSet(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch(e) {
+    console.warn('[storage] falha ao escrever:', key, e);
+    return false;
+  }
+}
+
+function storageDelete(key) {
+  try {
+    localStorage.removeItem(key);
+    return true;
+  } catch(e) {
+    console.warn('[storage] falha ao remover:', key, e);
+    return false;
+  }
+}
+
+function storageList(prefix) {
+  const keys = [];
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(prefix)) keys.push(k);
+    }
+  } catch(e) {
+    console.warn('[storage] falha ao listar:', prefix, e);
+  }
+  return keys;
+}
+
+async function carregarCatalogo() {
+  const salvo = storageGet('drcury:catalogo');
+  CATALOGO = salvo || JSON.parse(JSON.stringify(CATALOGO_PADRAO));
+}
+
+async function salvarCatalogo() {
+  await storageSet('drcury:catalogo', CATALOGO);
+}
+
+function getItensCatalogoFlat() {
+  const items = [];
+  for (const [cat, lista] of Object.entries(CATALOGO)) {
+    for (const nome of lista) {
+      items.push({ categoria: cat, nome });
+    }
+  }
+  return items;
+}
+
+function buildOptionsCatalogo(selectedNome = '') {
+  let html = '<option value="">— Selecione um procedimento —</option>';
+  for (const [cat, lista] of Object.entries(CATALOGO)) {
+    html += `<optgroup label="${cat}">`;
+    for (const nome of lista) {
+      const sel = nome === selectedNome ? ' selected' : '';
+      html += `<option value="${nome}" data-categoria="${cat}"${sel}>${nome}</option>`;
+    }
+    html += '</optgroup>';
+  }
+  html += '<optgroup label="——"><option value="__custom">+ Adicionar item personalizado…</option></optgroup>';
+  return html;
+}
+
+function adicionarProcedimento(nome = '', qtd = 1, valor = 0, categoria = '') {
+  PROCEDIMENTOS.push({ nome, qtd, valor, categoria });
+  renderProcedimentos();
+  atualizarPreview();
+}
+
+function removerProcedimento(idx) {
+  PROCEDIMENTOS.splice(idx, 1);
+  renderProcedimentos();
+  atualizarPreview();
+}
+
+// Debounce simples: chama fn após "delay" ms sem novas chamadas
+let _debounceTimers = {};
+function debounce(key, fn, delay = 600) {
+  if (_debounceTimers[key]) clearTimeout(_debounceTimers[key]);
+  _debounceTimers[key] = setTimeout(() => {
+    fn();
+    delete _debounceTimers[key];
+  }, delay);
+}
+
+// Salva o dado IMEDIATAMENTE (não perde nenhum digitado), mas atualiza o preview
+// só depois que parar de digitar por 600ms. Evita lag e perda de foco no mobile.
+function onProcInputDebounce(idx, campo, valor) {
+  // Salva imediato no array (sem disparar render)
+  if (campo === 'qtd') {
+    PROCEDIMENTOS[idx].qtd = parseInt(valor) || 1;
+  } else if (campo === 'valor') {
+    PROCEDIMENTOS[idx].valor = parseFloat(valor) || 0;
+  } else if (campo === 'valor_protese') {
+    PROCEDIMENTOS[idx].valor_protese = parseFloat(valor) || 0;
+  }
+  // Atualiza preview com debounce (só roda quando para de digitar)
+  debounce(`proc_${idx}_${campo}`, () => atualizarPreview(), 600);
+}
+
+function atualizarProcedimento(idx, campo, valor) {
+  let renderizar = false;
+  if (campo === 'nome') {
+    if (valor === '__custom') {
+      const nomeCustom = prompt('Nome do procedimento personalizado:');
+      if (!nomeCustom) {
+        renderProcedimentos();
+        return;
+      }
+      const catCustom = prompt('Categoria (ex: Cirurgia, Pós-Operatório, Tecnologias):') || 'Personalizado';
+      if (!CATALOGO[catCustom]) CATALOGO[catCustom] = [];
+      if (!CATALOGO[catCustom].includes(nomeCustom)) {
+        CATALOGO[catCustom].push(nomeCustom);
+        salvarCatalogo();
+      }
+      PROCEDIMENTOS[idx].nome = nomeCustom;
+      PROCEDIMENTOS[idx].categoria = catCustom;
+      showToast(`✓ "${nomeCustom}" adicionado ao catálogo`, 'success');
+      renderizar = true;
+    } else if (valor === '') {
+      PROCEDIMENTOS[idx].nome = '';
+      renderizar = true;
+    } else {
+      const items = getItensCatalogoFlat();
+      const found = items.find(i => i.nome === valor);
+      if (found) {
+        PROCEDIMENTOS[idx].nome = found.nome;
+        PROCEDIMENTOS[idx].categoria = found.categoria;
+        renderizar = true;
+      }
+    }
+  } else if (campo === 'qtd') {
+    // Apenas atualiza dado, NÃO re-renderiza (preserva foco do input)
+    PROCEDIMENTOS[idx].qtd = parseInt(valor) || 1;
+  } else if (campo === 'valor') {
+    PROCEDIMENTOS[idx].valor = parseFloat(valor) || 0;
+  } else if (campo === 'nome_livre') {
+    PROCEDIMENTOS[idx].nome = valor;
+    // Re-renderiza para mostrar/esconder o checkbox de prótese se o nome agora contém 'mama'
+    renderizar = true;
+  } else if (campo === 'inclui_protese') {
+    PROCEDIMENTOS[idx].inclui_protese = valor;
+    renderizar = true;
+  } else if (campo === 'valor_protese') {
+    PROCEDIMENTOS[idx].valor_protese = parseFloat(valor) || 0;
+  } else if (campo === 'inclui_kit_pos') {
+    PROCEDIMENTOS[idx].inclui_kit_pos = valor;
+    renderizar = true;
+  }
+
+  if (renderizar) renderProcedimentos();
+  atualizarPreview();
+}
+
+function renderProcedimentos() {
+  const lista = document.getElementById('lista_procedimentos');
+  document.getElementById('badge_count').textContent = PROCEDIMENTOS.length + (PROCEDIMENTOS.length === 1 ? ' item' : ' itens');
+
+  if (PROCEDIMENTOS.length === 0) {
+    lista.innerHTML = '<div class="picker-empty">Nenhum procedimento adicionado.<br><small>Clique em "Adicionar procedimento" para começar.</small></div>';
+    return;
+  }
+
+  let html = '';
+  PROCEDIMENTOS.forEach((proc, idx) => {
+    const nomeEsc = (proc.nome || '').replace(/"/g, '&quot;');
+    // Detecta procedimento de mama: regex ampla cobrindo variações com/sem acento
+    const nomeLower = (proc.nome || '').toLowerCase();
+    const catLower = (proc.categoria || '').toLowerCase();
+    const ehMama = /mama|mamári|mamari|mamopl|mastop|prótese|protese|peito|seio/.test(nomeLower)
+                || /mama/.test(catLower);
+    // Detecta procedimento de pós-operatório: kit, drenagem, pós, sessão protocolo
+    const ehPosOp = /kit|drenagem|pós[-\s]?op|pos[-\s]?op|sess[ãa]o|protocolo|cinta|placa.*conten|meia.*trombo|diprospan/.test(nomeLower)
+                 || /pós[-\s]?op|pos[-\s]?op/.test(catLower);
+    // onchange (não oninput) no nome livre evita re-render durante digitação;
+    // qtd e valor usam oninput mas SEM disparar render (só dado + preview)
+    html += `
+      <div class="picker-row">
+        <select onchange="atualizarProcedimento(${idx}, 'nome', this.value)" aria-label="Selecionar procedimento">
+          ${buildOptionsCatalogo(proc.nome)}
+        </select>
+        <input type="text" placeholder="Nome do procedimento" value="${nomeEsc}" onchange="atualizarProcedimento(${idx}, 'nome_livre', this.value)" aria-label="Nome do procedimento">
+        <input type="number" inputmode="numeric" min="1" value="${proc.qtd}" oninput="onProcInputDebounce(${idx}, 'qtd', this.value)" placeholder="Qtd" aria-label="Quantidade">
+        <input type="number" inputmode="decimal" min="0" step="0.01" value="${proc.valor}" oninput="onProcInputDebounce(${idx}, 'valor', this.value)" placeholder="Valor (R$)" aria-label="Valor em reais">
+        <button class="icon-btn" onclick="removerProcedimento(${idx})" title="Remover" aria-label="Remover este procedimento">✕ Remover</button>
+      </div>
+    `;
+    // Checkbox de prótese mamária — aparece SOMENTE quando o nome remete a procedimento de mama.
+    if (ehMama) {
+      const valorProt = proc.valor_protese !== undefined && proc.valor_protese !== null ? proc.valor_protese : '';
+      html += `
+        <div class="protese-row">
+          <label class="protese-toggle">
+            <input type="checkbox" ${proc.inclui_protese ? 'checked' : ''} onchange="atualizarProcedimento(${idx}, 'inclui_protese', this.checked)">
+            <span>Inclui prótese mamária (paga diretamente ao fornecedor)</span>
+          </label>
+          ${proc.inclui_protese ? `
+            <div class="protese-extra">
+              <label class="field-label-sm">Valor médio da prótese (R$)</label>
+              <input type="number" inputmode="decimal" min="0" step="0.01" value="${valorProt}" placeholder="Ex: 3600.00" oninput="onProcInputDebounce(${idx}, 'valor_protese', this.value)">
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+    // Checkbox de Kit Pós-Operatório — aparece quando procedimento é pós-operatório
+    if (ehPosOp) {
+      // Inicializa kit_itens com os itens padrão se ainda não foi configurado
+      const kitItens = proc.kit_itens || KIT_POS_ITENS_PADRAO.map(i => ({...i}));
+      const totalMarcados = kitItens.filter(i => i.marcado).length;
+      html += `
+        <div class="protese-row kit-pos-row">
+          <label class="protese-toggle">
+            <input type="checkbox" ${proc.inclui_kit_pos ? 'checked' : ''} onchange="onKitChecked(${idx}, this.checked)">
+            <span>Inclui Kit Pós-Operatório (selecione os itens que serão entregues)</span>
+          </label>
+          ${proc.inclui_kit_pos ? `
+            <div class="protese-extra" style="grid-template-columns: 1fr; gap: 8px;">
+              <p style="font-size: 12px; color: var(--cinza-escuro); margin: 4px 0; line-height: 1.5;">
+                <strong>${totalMarcados} de ${kitItens.length}</strong> ${totalMarcados === 1 ? 'item selecionado' : 'itens selecionados'} para esta paciente
+              </p>
+              <button class="btn btn-secondary" type="button" onclick="abrirModalKit(${idx})" style="padding: 8px 12px; font-size: 12px;">
+                ✏️ Editar itens do Kit
+              </button>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+  });
+  lista.innerHTML = html;
+}
+
+function setModoDesconto(modo) {
+  MODO_DESCONTO = modo;
+  document.querySelectorAll('.toggle-group button').forEach(b => b.classList.remove('active'));
+  document.getElementById('modo_' + modo).classList.add('active');
+
+  const cont = document.getElementById('conteudo_desconto');
+  if (modo === 'manual') {
+    cont.innerHTML = `
+      <div>
+        <label class="field-label">Valor à vista (R$)</label>
+        <input type="number" id="valor_avista_manual" inputmode="decimal" placeholder="Ex: 205000.00" step="0.01" min="0" onchange="atualizarPreview()">
+        <p class="help-text">Insira o valor final acordado com o paciente. A economia será calculada automaticamente.</p>
+      </div>`;
+  } else {
+    cont.innerHTML = '<p class="help-text" style="padding: 12px; background: var(--bege-claro); border-radius: var(--radius);">Sem desconto à vista. O orçamento mostrará apenas o valor cheio e as opções de parcelamento.</p>';
+  }
+  atualizarPreview();
+}
+
+function calcular() {
+  // VALOR LÍQUIDO = soma dos valores digitados nos procedimentos (única fonte da verdade)
+  // O cirurgião dá os valores que quer receber líquido em cada item; a soma é o que ele quer receber.
+  const valorLiquido = PROCEDIMENTOS.reduce((s, p) => s + (p.valor * p.qtd), 0);
+
+  // FÓRMULA GROSS-UP: valor bruto = líquido ÷ (1 − taxa)
+  // Cada modalidade adiciona a taxa correspondente para que o líquido permaneça constante
+  const valor3x = valorLiquido / (1 - TAXAS_GROSSUP.parc_3 / 100);
+  const valor6x = valorLiquido / (1 - TAXAS_GROSSUP.parc_6 / 100);
+  const valor10x = valorLiquido / (1 - TAXAS_GROSSUP.parc_10 / 100);
+
+  // À vista: por padrão = valor líquido (taxa 0%)
+  // Modo "manual" no item 6 permite Cams sobrescrever (caso médico negocie diferente)
+  let valorAvista = valorLiquido;
+  if (MODO_DESCONTO === 'manual') {
+    const v = parseFloat(document.getElementById('valor_avista_manual')?.value);
+    if (v && v > 0) {
+      valorAvista = v;
+    }
+  }
+
+  // Mantém propriedades antigas para compatibilidade
+  const subtotal = valorLiquido;
+
+  return {
+    subtotal,
+    valorLiquido,
+    valor10x,
+    valor6x,
+    valor3x,
+    valorAvista,
+    economia: valor10x - valorAvista,
+  };
+}
+
+// ============================================================
+// RECÁLCULO DE PARCELAS (gross-up: líquido ÷ (1 - taxa))
+// ============================================================
+
+// A seção 7 não tem mais campos visuais para sincronizar.
+// Toda a memória de cálculo fica no JS e é exibida apenas no preview ao paciente.
+function atualizarCamposParcela() {
+  // No-op (mantido para compatibilidade com chamadas existentes)
+}
+
+// Atualiza o título do método (editável inline na tabela de procedimentos do preview)
+function onMetodoEditado(novoTitulo) {
+  METODO_TITULO = novoTitulo.trim() || 'MÉTODO DR. JOSÉ CURY - 01';
+  // Não chama atualizarPreview() para evitar perder o cursor durante a digitação
+}
+
+function togglePareclaAtiva(n) {
+  atualizarPreview();
+}
+
+// ============================================================
+// MODAL DE SELEÇÃO DE ITENS DO KIT PÓS-OPERATÓRIO
+// ============================================================
+
+// Quando o checkbox 'Inclui Kit Pós-Op' é marcado, inicializa kit_itens (se necessário) e abre modal
+function onKitChecked(idx, checked) {
+  if (checked) {
+    // Se ainda não tem kit_itens, inicializa com os padrões
+    if (!PROCEDIMENTOS[idx].kit_itens) {
+      PROCEDIMENTOS[idx].kit_itens = KIT_POS_ITENS_PADRAO.map(i => ({...i}));
+    }
+    PROCEDIMENTOS[idx].inclui_kit_pos = true;
+    renderProcedimentos();
+    atualizarPreview();
+    abrirModalKit(idx);
+  } else {
+    PROCEDIMENTOS[idx].inclui_kit_pos = false;
+    renderProcedimentos();
+    atualizarPreview();
+  }
+}
+
+// Abre o modal mostrando os itens do kit pra esse procedimento
+function abrirModalKit(idx) {
+  KIT_EDITANDO_IDX = idx;
+  const proc = PROCEDIMENTOS[idx];
+  if (!proc.kit_itens) {
+    proc.kit_itens = KIT_POS_ITENS_PADRAO.map(i => ({...i}));
+  }
+  // Renderiza a lista de checkboxes
+  const lista = document.getElementById('kit_itens_lista');
+  let html = '';
+  proc.kit_itens.forEach((item, i) => {
+    html += `
+      <label style="display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; background: ${item.marcado ? 'var(--bege-claro)' : 'transparent'}; border: 1px solid ${item.marcado ? 'var(--dourado)' : 'var(--cinza-claro)'}; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+        <input type="checkbox" id="kit_item_${i}" ${item.marcado ? 'checked' : ''} style="margin-top: 2px;">
+        <span style="font-size: 13px; color: var(--cinza-escuro); line-height: 1.4;">${item.label}</span>
+      </label>
+    `;
+  });
+  lista.innerHTML = html;
+  document.getElementById('modal_kit_itens').classList.add('open');
+}
+
+// Fecha o modal — se confirmado, salva a seleção; se não, descarta mudanças
+function fecharModalKit(salvar) {
+  if (salvar && KIT_EDITANDO_IDX !== null) {
+    const proc = PROCEDIMENTOS[KIT_EDITANDO_IDX];
+    proc.kit_itens.forEach((item, i) => {
+      const chk = document.getElementById(`kit_item_${i}`);
+      if (chk) item.marcado = chk.checked;
+    });
+    renderProcedimentos();
+    atualizarPreview();
+  }
+  document.getElementById('modal_kit_itens').classList.remove('open');
+  KIT_EDITANDO_IDX = null;
+}
+
+// ============================================================
+// TOGGLES GLOBAIS DO ORÇAMENTO
+// ============================================================
+
+function toggleMostrarValores(checked) {
+  MOSTRAR_VALORES = checked;
+  atualizarPreview();
+}
+
+function toggleModoPosOp(checked) {
+  MODO_POS_OP = checked;
+  atualizarPreview();
+}
+
+// Chamada quando o dropdown 'Tipo de Orçamento' muda
+// Sincroniza MODO_POS_OP automaticamente: ativa quando tipo='pos', desativa nos outros
+function onTipoOrcamentoMudou(tipo) {
+  MODO_POS_OP = (tipo === 'pos');
+  // Mostra/esconde o aviso visual de modo pós-op
+  const info = document.getElementById('info_modo_pos_op');
+  if (info) info.style.display = MODO_POS_OP ? 'block' : 'none';
+  atualizarPreview();
+}
+
+function atualizarPreview() {
+  const calc = calcular();
+  const numeroOR = document.getElementById('numero_or').value || '——';
+  const dataE = document.getElementById('data_emissao').value || hojeBR();
+  const paciente = document.getElementById('paciente_nome').value || '— Aguardando nome do paciente —';
+  const cirurgiao = document.getElementById('cirurgiao').value;
+  const consultor = document.getElementById('consultor').value;
+  const tipo = document.getElementById('tipo_orcamento').value;
+
+  // Hospitais selecionados (checkboxes)
+  const hospitaisSelecionados = [];
+  if (document.getElementById('hosp_vila_nova_star').checked) hospitaisSelecionados.push(HOSPITAIS.vila_nova_star);
+  if (document.getElementById('hosp_sao_luiz_itaim').checked) hospitaisSelecionados.push(HOSPITAIS.sao_luiz_itaim);
+
+  // Atualiza header impresso com número do OR
+  const headerOREl = document.getElementById('print_header_or');
+  if (headerOREl) headerOREl.textContent = `OR ${numeroOR} · ${dataBR(dataE)}`;
+
+  let tituloInvest = 'Investimento do Procedimento Cirúrgico';
+  if (tipo === 'pos') tituloInvest = 'Investimento do Protocolo Pós-Operatório';
+  else if (tipo === 'unificado') tituloInvest = 'Investimento Total do Procedimento';
+
+  // Estado vazio
+  if (calc.valorLiquido <= 0 || PROCEDIMENTOS.length === 0) {
+    document.getElementById('preview_body').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">⚜</div>
+        <p>Adicione procedimentos com seus valores no item 4.<br>A prévia do orçamento aparecerá aqui em tempo real.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const mostrar10 = document.getElementById('parc_10').checked;
+  const mostrar6 = document.getElementById('parc_6').checked;
+  const mostrar3 = document.getElementById('parc_3').checked;
+  const mostrarAvista = document.getElementById('parc_avista').checked;
+  const temDesconto = mostrarAvista && calc.valorAvista < calc.valor10x;
+  const economia = calc.valor10x - calc.valorAvista;
+
+  // ============================================================
+  // HEADER (mostra apenas na tela; no print há o header preto fixo do body)
+  // ============================================================
+  let html = `
+    <div class="screen-only-header" style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--cinza-claro);">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
+        <strong style="font-size: 11px; color: var(--cinza-medio); text-transform: uppercase; letter-spacing: 1.5px;">Orçamento</strong>
+        <span style="font-family: var(--font-display); font-size: 22px; color: var(--dourado-escuro);">OR ${numeroOR}</span>
+      </div>
+      <div style="font-size: 11px; color: var(--cinza-medio);">Emitido em: ${dataBR(dataE)}</div>
+    </div>
+  `;
+
+  // ============================================================
+  // BLOCO PACIENTE / CIRURGIÃO (lado a lado)
+  // ============================================================
+  html += `
+    <div class="paciente-cirurgiao-block">
+      <div class="pcb-col">
+        <div class="pcb-label">PACIENTE</div>
+        <div class="pcb-value">${paciente}</div>
+      </div>
+      <div class="pcb-col">
+        <div class="pcb-label">CIRURGIÃO RESPONSÁVEL</div>
+        <div class="pcb-value">${cirurgiao}</div>
+        <div class="pcb-sub">Consultor interno: ${consultor}</div>
+      </div>
+    </div>
+  `;
+
+  // ============================================================
+  // CAIXA INVESTIMENTO (Valor Total + Investimento Especial empilhados)
+  // ============================================================
+  html += `
+    <div class="investment-box">
+      <div class="ib-title">${tituloInvest.toUpperCase()}</div>
+      <div class="ib-grid ${temDesconto ? 'has-discount' : 'no-discount'}">
+        <div class="ib-col-left">
+          <div class="ib-label">Valor total</div>
+          <div class="ib-amount">${fmtMoeda(calc.valor10x)}</div>
+        </div>
+  `;
+  if (temDesconto) {
+    html += `
+        <div class="ib-col-right">
+          <div class="ib-label-special">Investimento Especial à Vista</div>
+          <div class="ib-amount-special">${fmtMoeda(calc.valorAvista)}</div>
+          <div class="ib-economia">Economia de ${fmtMoeda(economia)}</div>
+        </div>
+      </div>
+      <div class="ib-note">* Valor à vista condicional ao pagamento integral</div>
+    </div>
+  `;
+  } else {
+    html += `</div></div>`;
+  }
+
+  // ============================================================
+  // SEÇÃO 1 — PROCEDIMENTOS CIRÚRGICOS
+  // Tabela ganha coluna "Valor unitário" se:
+  // - Usuário marcou checkbox "Mostrar valores unitários", OU
+  // - Modo pós-operatório está ativo (sempre mostra valores em pós-op)
+  // EXCETO se algum procedimento tiver Kit Pós-Op marcado (a seção 5 já detalha valores)
+  // ============================================================
+  const algumComKitPos = PROCEDIMENTOS.some(p => p.inclui_kit_pos);
+  const mostrarColValor = (MOSTRAR_VALORES || MODO_POS_OP) && !algumComKitPos;
+
+  html += `
+    <div class="section-numbered">
+      <div class="sn-header">1. PROCEDIMENTOS CIRÚRGICOS</div>
+      <table class="proc-table">
+        <thead>
+          <tr>
+            <th><span contenteditable="true" id="metodo_titulo" oninput="onMetodoEditado(this.textContent)" style="outline: none;">${METODO_TITULO}</span></th>
+            <th class="ptt-qtd">QTD.</th>
+            ${mostrarColValor ? '<th class="ptt-val">VALOR (R$)</th>' : ''}
+          </tr>
+        </thead>
+        <tbody>
+  `;
+  for (const p of PROCEDIMENTOS) {
+    const subtotal = (parseFloat(p.valor) || 0) * (parseInt(p.qtd) || 0);
+    html += `<tr>
+      <td>${p.nome || '<em style="color:var(--cinza-medio);">— preencher —</em>'}</td>
+      <td class="ptt-qtd">${p.qtd}</td>
+      ${mostrarColValor ? `<td class="ptt-val">${subtotal > 0 ? fmtMoeda(subtotal) : '<span style="color:var(--cinza-medio);">—</span>'}</td>` : ''}
+    </tr>`;
+  }
+  html += `
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  // ============================================================
+  // SEÇÃO 2 — ETAPA 1: EQUIPE MÉDICA (ocultada em modo pós-operatório)
+  // ============================================================
+  if (!MODO_POS_OP) {
+    html += `
+      <div class="section-numbered">
+        <div class="sn-header">2. ETAPA 1 — EQUIPE MÉDICA</div>
+        <ul class="sn-bullets">
+          <li>Cirurgião Plástico (${cirurgiao})</li>
+          <li>Cirurgião Plástico Auxiliar (conforme complexidade do procedimento)</li>
+          <li>Equipe de Médicos Anestesistas</li>
+          <li>Instrumentador cirúrgico</li>
+        </ul>
+      </div>
+    `;
+  }
+
+  // ============================================================
+  // SEÇÃO 3 — ETAPA 2: TECNOLOGIA ASSOCIADA (se houver Body Tite/Face Tite/Renuvion/Vaser)
+  // ============================================================
+  const procsTecno = PROCEDIMENTOS.filter(p => p.categoria === 'Tecnologias Associadas');
+  if (procsTecno.length > 0) {
+    const nomesTecno = procsTecno.map(p => p.nome).join(', ');
+    html += `
+      <div class="section-numbered">
+        <div class="sn-header">3. ETAPA 2 — TECNOLOGIA ASSOCIADA: ${nomesTecno.toUpperCase()}</div>
+        <p class="sn-text">As tecnologias associadas potencializam o resultado da cirurgia, contribuindo para retração de pele e redução de flacidez pós-cirúrgica. Tratam-se de tecnologias complementares e, portanto, não eliminam por completo a possibilidade de flacidez residual.</p>
+      </div>
+    `;
+  }
+
+  // ============================================================
+  // SEÇÃO 4 — CUSTOS HOSPITALARES (NÃO INCLUSOS)
+  // Ocultada em modo pós-operatório (não há equipe nem hospital)
+  // ============================================================
+  // Calcula numeração dinamicamente baseado em quais seções aparecem
+  // 1 (Procedimentos) é sempre 1
+  // 2 (Equipe) só existe se !MODO_POS_OP → ocupa 2
+  // 3 (Tecnologia) só existe se procsTecno.length > 0
+  // 4 (Custos Hospitalares) só existe se !MODO_POS_OP
+  let numSecAtual = 1; // já contou Procedimentos
+  if (!MODO_POS_OP) numSecAtual++; // Equipe Médica
+  if (procsTecno.length > 0) numSecAtual++; // Tecnologia
+  const numSecHosp = numSecAtual + 1;
+  if (!MODO_POS_OP) {
+    html += `
+      <div class="section-numbered">
+        <div class="sn-header">${numSecHosp}. CUSTOS HOSPITALARES (NÃO INCLUSOS)</div>
+        <ul class="sn-bullets">
+          <li>Os valores hospitalares são definidos pelas tabelas do próprio hospital, que cobra por procedimentos e quantidade de diárias.</li>
+          <li>O pagamento da parte hospitalar é feito diretamente com o financeiro do hospital, no momento da alta ou entrada, com possibilidade de parcelamento em até 6x sem juros no cartão de crédito.</li>
+          <li>O custo final atualizado é informado pelo hospital no dia da alta.</li>
+          <li>Os valores podem sofrer alterações devido a pedidos de exames, hora adicional de sala cirúrgica ou procedimentos complementares.</li>
+          <li>A clínica não se responsabiliza pelos custos cobrados pelo hospital.</li>
+        </ul>
+    `;
+    if (hospitaisSelecionados.length > 0) {
+      for (const h of hospitaisSelecionados) {
+        html += `
+          <div class="hospital-rec">
+            <div class="hr-label">HOSPITAL ${hospitaisSelecionados.length > 1 ? 'OPÇÃO ' + (hospitaisSelecionados.indexOf(h) + 1) : 'RECOMENDADO'}</div>
+            <div class="hr-name">${h.nome} (${h.estrelas})</div>
+            <div class="hr-info">${h.endereco} &nbsp;|&nbsp; Valor aproximado: ${fmtMoeda(h.valor)} &nbsp;|&nbsp; ${h.telefone}</div>
+          </div>
+        `;
+      }
+    }
+
+    // Prótese mamária — só aparece se algum procedimento tiver inclui_protese marcado
+    const procsProtese = PROCEDIMENTOS.filter(p => p.inclui_protese);
+    if (procsProtese.length > 0) {
+      const valorMedio = procsProtese.reduce((s, p) => s + (parseFloat(p.valor_protese) || 0), 0);
+      html += `
+        <div class="protese-bloco">
+          <div class="hr-label">PRÓTESE MAMÁRIA (NÃO INCLUSA)</div>
+          <ul class="sn-bullets" style="margin-top: 8px; margin-bottom: 8px;">
+            <li>O valor da prótese mamária é pago diretamente ao fornecedor escolhido, não estando incluso no orçamento da cirurgia.</li>
+            <li>O fornecedor é definido em conjunto com o cirurgião conforme a indicação clínica e preferência da paciente.</li>
+            <li>Marcas e modelos disponíveis variam conforme estoque do fornecedor no momento da cirurgia.</li>
+          </ul>
+          <div class="hr-info" style="font-weight: 600; color: var(--dourado-escuro);">Valor médio aproximado: ${fmtMoeda(valorMedio)}</div>
+        </div>
+      `;
+    }
+    html += `</div>`;
+    numSecAtual++; // contou Custos Hospitalares
+  }
+
+  // ============================================================
+  // SEÇÃO Kit Pós-Operatório (só aparece se algum procedimento tiver inclui_kit_pos marcado)
+  // Numeração: depende de quais seções vieram antes (controladas por numSecAtual)
+  // ============================================================
+  const procsKitPos = PROCEDIMENTOS.filter(p => p.inclui_kit_pos);
+  let numSecKit = null;
+  if (procsKitPos.length > 0) {
+    numSecKit = numSecAtual + 1;
+    // Pega os itens marcados de todos os procedimentos com Kit (pode ter mais de um, mas geralmente é 1)
+    // Se houver mais de um, mostra os itens do primeiro com Kit marcado
+    const procComKit = procsKitPos[0];
+    const itensMarcados = (procComKit.kit_itens || KIT_POS_ITENS_PADRAO).filter(i => i.marcado);
+    const itensHtml = itensMarcados.length > 0
+      ? itensMarcados.map(i => `<li>${i.label}</li>`).join('')
+      : '<li style="color: var(--cinza-medio); font-style: italic;">Nenhum item selecionado — edite no formulário.</li>';
+    html += `
+      <div class="section-numbered kit-section">
+        <div class="sn-header">${numSecKit}. KIT PÓS-OPERATÓRIO</div>
+        <div class="kit-content">
+          <p class="sn-text" style="margin-bottom: 8px;"><strong>Equipe Dr. José Cury</strong> — A drenagem pós-operatória é fundamental para garantir o resultado final da cirurgia. Por isso orientamos os pacientes a realizarem com nossa equipe, capacitada e treinada para entregar o melhor resultado.</p>
+          <p class="sn-text" style="margin-bottom: 6px; font-weight: 600; color: var(--dourado-escuro);">Drenagens pós-operatório: 1 (Hospital) + 9 Sessões (Clínica)</p>
+          <p class="sn-text" style="margin-bottom: 6px; font-weight: 600; color: var(--dourado-escuro);">Itens inclusos (selecionados para esta paciente):</p>
+          <ul class="sn-bullets kit-bullets">
+            ${itensHtml}
+          </ul>
+        </div>
+      </div>
+    `;
+    numSecAtual++;
+  }
+
+  // ============================================================
+  // SEÇÃO FORMAS DE PAGAMENTO (numeração dinâmica)
+  // ============================================================
+  if (mostrar3 || mostrar6 || mostrar10 || mostrarAvista) {
+    const numSec = numSecAtual + 1;
+
+    html += `
+      <div class="section-numbered">
+        <div class="sn-header">${numSec}. FORMAS DE PAGAMENTO</div>
+        <ul class="payment-list">
+    `;
+
+    if (mostrarAvista && calc.valorAvista > 0) {
+      html += `
+        <li>
+          <span class="pl-label">Pagamento à vista:</span>
+          <span class="pl-value">${fmtMoeda(calc.valorAvista)}</span>
+          <span class="pl-tag">(Valor Especial)</span>
+        </li>
+      `;
+    }
+    if (mostrar3 && calc.valor3x > 0) {
+      html += `
+        <li>
+          <span class="pl-label">Cartão de crédito em 3x:</span>
+          <span class="pl-value">3x de ${fmtMoeda(calc.valor3x / 3)}</span>
+          <span class="pl-tag">(total: ${fmtMoeda(calc.valor3x)})</span>
+        </li>
+      `;
+    }
+    if (mostrar6 && calc.valor6x > 0) {
+      html += `
+        <li>
+          <span class="pl-label">Cartão de crédito em 6x:</span>
+          <span class="pl-value">6x de ${fmtMoeda(calc.valor6x / 6)}</span>
+          <span class="pl-tag">(total: ${fmtMoeda(calc.valor6x)})</span>
+        </li>
+      `;
+    }
+    if (mostrar10 && calc.valor10x > 0) {
+      html += `
+        <li>
+          <span class="pl-label">Cartão de crédito em 10x:</span>
+          <span class="pl-value">10x de ${fmtMoeda(calc.valor10x / 10)}</span>
+          <span class="pl-tag">(total: ${fmtMoeda(calc.valor10x)})</span>
+        </li>
+      `;
+    }
+    html += `</ul></div>`;
+  }
+
+  // ============================================================
+  // CAIXAS DE AVISO
+  // ============================================================
+  if (tipo === 'cirurgia') {
+    html += `
+      <div class="aviso-box aviso-bege">
+        <strong>OBSERVAÇÃO:</strong> Protocolo Pós-Operatório não incluído neste orçamento. As sessões de drenagem e o kit pós-operatório são orçados separadamente.
+      </div>
+    `;
+  }
+  html += `
+    <div class="aviso-box aviso-amarelo">
+      <strong>IMPORTANTE:</strong> Orçamento válido por 30 dias a partir da data de emissão.
+    </div>
+  `;
+
+  // ============================================================
+  // ASSINATURA (só no print)
+  // ============================================================
+  html += `
+    <div class="assinatura-block">
+      <div class="ass-col">
+        <div class="ass-line"></div>
+        <div class="ass-label">Data e assinatura do paciente</div>
+      </div>
+      <div class="ass-col">
+        <div class="ass-line"></div>
+        <div class="ass-label">Clínica Dr. José Cury</div>
+      </div>
+    </div>
+  `;
+
+  // ============================================================
+  // FOOTER PRETO (só no print) — endereço, contato e validade
+  // ============================================================
+  html += `
+    <div class="print-footer">
+      <div class="footer-col">
+        <strong>Endereço</strong>
+        <span>Rua Elvira Ferraz, 250 — Sala 913<br>Vila Olímpia, São Paulo — SP</span>
+      </div>
+      <div class="footer-col center">
+        <strong>Contato</strong>
+        <span>(11) 3849-4700<br>drjosecury.com.br</span>
+      </div>
+      <div class="footer-col right">
+        <strong>Validade</strong>
+        <span>30 dias a partir da<br>data de emissão</span>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('preview_body').innerHTML = html;
+}
+
+// Imprime/gera PDF — usa html2pdf.js (carregado sob demanda do CDN)
+// Funciona em qualquer dispositivo (desktop, iOS, Android) e gera PDF nativo
+// ============================================================
+// FORMATO DO PDF (A4 ou A3)
+// ============================================================
+
+function abrirSeletorFormato() {
+  document.querySelector(`input[name="formato_pdf"][value="${FORMATO_PDF}"]`).checked = true;
+  atualizarUIFormato();
+  document.getElementById('modal_formato').classList.add('open');
+}
+
+function setFormatoPDF(formato) {
+  FORMATO_PDF = formato;
+  storageSet('drcury:formato_pdf', formato);
+  atualizarUIFormato();
+}
+
+function atualizarUIFormato() {
+  // Atualiza label do botão na topbar
+  const lbl = document.getElementById('formato_atual_label');
+  if (lbl) lbl.textContent = FORMATO_PDF.toUpperCase();
+  // Destaca a opção selecionada no modal
+  const optA4 = document.getElementById('formato_opt_a4');
+  const optA3 = document.getElementById('formato_opt_a3');
+  if (optA4 && optA3) {
+    optA4.style.borderColor = FORMATO_PDF === 'a4' ? 'var(--dourado)' : 'transparent';
+    optA3.style.borderColor = FORMATO_PDF === 'a3' ? 'var(--dourado)' : 'transparent';
+  }
+}
+
+function carregarFormatoPDF() {
+  const salvo = storageGet('drcury:formato_pdf');
+  if (salvo === 'a4' || salvo === 'a3') FORMATO_PDF = salvo;
+  atualizarUIFormato();
+}
+
+// ============================================================
+// GERAÇÃO DE PDF — usa window.print() do navegador (nativo, funciona em qualquer device)
+// ============================================================
+
+function imprimirPDF() {
+  const previewBody = document.getElementById('preview_body');
+  if (!previewBody || !previewBody.innerHTML.trim() || previewBody.querySelector('.empty-state')) {
+    showToast('Adicione procedimentos antes de gerar o PDF', 'error');
+    return;
+  }
+  // Injeta o tamanho de página dinâmico (A4 ou A3) — substitui qualquer style anterior
+  let dynStyle = document.getElementById('dyn_print_size');
+  if (!dynStyle) {
+    dynStyle = document.createElement('style');
+    dynStyle.id = 'dyn_print_size';
+    document.head.appendChild(dynStyle);
+  }
+  const tamanho = (FORMATO_PDF === 'a3') ? 'A3' : 'A4';
+  dynStyle.textContent = `@media print { @page { size: ${tamanho} portrait; margin: 14mm 12mm; } }`;
+  // Pequeno delay pra garantir que o estilo foi aplicado antes de abrir o diálogo
+  setTimeout(() => {
+    window.print();
+  }, 100);
+}
+
+async function salvarOrcamento() {
+  const numero = document.getElementById('numero_or').value || ('TMP-' + Date.now());
+  const paciente = document.getElementById('paciente_nome').value || 'Sem nome';
+  const calc = calcular();
+
+  const orc = {
+    numero,
+    paciente,
+    data_emissao: document.getElementById('data_emissao').value,
+    tipo: document.getElementById('tipo_orcamento').value,
+    cirurgiao: document.getElementById('cirurgiao').value,
+    consultor: document.getElementById('consultor').value,
+    hosp_vila_nova_star: document.getElementById('hosp_vila_nova_star').checked,
+    hosp_sao_luiz_itaim: document.getElementById('hosp_sao_luiz_itaim').checked,
+    procedimentos: [...PROCEDIMENTOS],
+    valor_liquido: calc.valorLiquido,
+    modo_desconto: MODO_DESCONTO,
+    valor_avista_manual: document.getElementById('valor_avista_manual')?.value,
+    parc_avista: document.getElementById('parc_avista').checked,
+    parc_3: document.getElementById('parc_3').checked,
+    parc_6: document.getElementById('parc_6').checked,
+    parc_10: document.getElementById('parc_10').checked,
+    valor_10x: calc.valor10x,
+    valor_avista: calc.valorAvista,
+    salvo_em: new Date().toISOString()
+  };
+
+  await storageSet(`drcury:orc:${numero}-${Date.now()}`, orc);
+  showToast(`✓ Orçamento OR ${numero} salvo no histórico`, 'success');
+}
+
+function gerarResumoTexto() {
+  const calc = calcular();
+  const numero = document.getElementById('numero_or').value || '——';
+  const paciente = document.getElementById('paciente_nome').value || 'paciente';
+  const cirurgiao = document.getElementById('cirurgiao').value;
+  const mostrarAvista = document.getElementById('parc_avista').checked;
+
+  let txt = `*Orçamento Clínica Dr. José Cury*\n`;
+  txt += `OR ${numero}\n`;
+  txt += `Paciente: ${paciente}\n`;
+  txt += `Cirurgião: ${cirurgiao}\n\n`;
+
+  if (PROCEDIMENTOS.length > 0) {
+    txt += `*Procedimentos:*\n`;
+    for (const p of PROCEDIMENTOS) {
+      txt += `• ${p.nome} (${p.qtd}x)\n`;
+    }
+    txt += `\n`;
+  }
+
+  txt += `*Valor total:* ${fmtMoeda(calc.valor10x)}\n`;
+  if (mostrarAvista && calc.valorAvista < calc.valor10x) {
+    txt += `*Valor Especial à Vista:* ${fmtMoeda(calc.valorAvista)} (economia de ${fmtMoeda(calc.valor10x - calc.valorAvista)})\n`;
+  }
+
+  txt += `\n*Formas de Pagamento:*\n`;
+  if (mostrarAvista && calc.valorAvista > 0) {
+    txt += `• À vista: ${fmtMoeda(calc.valorAvista)}\n`;
+  }
+  if (document.getElementById('parc_3').checked && calc.valor3x > 0) {
+    txt += `• 3x de ${fmtMoeda(calc.valor3x / 3)} (total: ${fmtMoeda(calc.valor3x)})\n`;
+  }
+  if (document.getElementById('parc_6').checked && calc.valor6x > 0) {
+    txt += `• 6x de ${fmtMoeda(calc.valor6x / 6)} (total: ${fmtMoeda(calc.valor6x)})\n`;
+  }
+  if (document.getElementById('parc_10').checked && calc.valor10x > 0) {
+    txt += `• 10x de ${fmtMoeda(calc.valor10x / 10)} (total: ${fmtMoeda(calc.valor10x)})\n`;
+  }
+
+  const hospsSel = [];
+  if (document.getElementById('hosp_vila_nova_star').checked) hospsSel.push(HOSPITAIS.vila_nova_star);
+  if (document.getElementById('hosp_sao_luiz_itaim').checked) hospsSel.push(HOSPITAIS.sao_luiz_itaim);
+  if (hospsSel.length > 0) {
+    txt += `\n*${hospsSel.length > 1 ? 'Hospitais Recomendados' : 'Hospital Recomendado'}:*\n`;
+    for (const h of hospsSel) {
+      txt += `• ${h.nome} (${h.estrelas}) — ${fmtMoeda(h.valor)} — ${h.telefone}\n`;
+    }
+  }
+
+  // Prótese mamária (paga ao fornecedor)
+  const procsProteseTxt = PROCEDIMENTOS.filter(p => p.inclui_protese);
+  if (procsProteseTxt.length > 0) {
+    const valorMedio = procsProteseTxt.reduce((s, p) => s + (parseFloat(p.valor_protese) || 0), 0);
+    txt += `\n*Prótese Mamária (não inclusa):*\n• Valor médio aproximado: ${fmtMoeda(valorMedio)}\n• Pagamento direto ao fornecedor\n`;
+  }
+
+  // Kit Pós-Operatório
+  const procsKitPosTxt = PROCEDIMENTOS.filter(p => p.inclui_kit_pos);
+  if (procsKitPosTxt.length > 0) {
+    txt += `\n*Kit Pós-Operatório incluso:*\n• 1 Drenagem Hospital + 9 Sessões Clínica\n• Cintas, malhas e meias antitrombo\n• Placas de contenção, diprospan, canaletas, colete e demais itens\n`;
+  }
+
+  txt += `\nClínica Dr. José Cury\n(11) 3849-4700 | drjosecury.com.br`;
+  return txt;
+}
+
+function copiarResumoTexto() {
+  const txt = gerarResumoTexto();
+  navigator.clipboard.writeText(txt).then(
+    () => showToast('✓ Resumo copiado para a área de transferência', 'success'),
+    () => showToast('Erro ao copiar', 'error')
+  );
+}
+
+function toggleShareMenu(ev) {
+  const menu = document.getElementById('share_menu');
+  if (menu.classList.contains('open')) {
+    menu.classList.remove('open');
+    return;
+  }
+  const rect = ev.currentTarget.getBoundingClientRect();
+  menu.style.left = rect.left + 'px';
+  menu.style.top = (rect.top - 100) + 'px';
+  menu.classList.add('open');
+  setTimeout(() => document.addEventListener('click', closeShareMenuOnce), 50);
+}
+
+function closeShareMenuOnce(e) {
+  if (!e.target.closest('.share-menu') && !e.target.closest('#btn_compartilhar')) {
+    document.getElementById('share_menu').classList.remove('open');
+    document.removeEventListener('click', closeShareMenuOnce);
+  }
+}
+
+function enviarWhatsApp() {
+  const txt = encodeURIComponent(gerarResumoTexto());
+  window.open(`https://wa.me/?text=${txt}`, '_blank');
+  document.getElementById('share_menu').classList.remove('open');
+}
+
+function enviarEmail() {
+  const numero = document.getElementById('numero_or').value || '——';
+  const paciente = document.getElementById('paciente_nome').value || 'paciente';
+  const subject = encodeURIComponent(`Orçamento OR ${numero} — ${paciente}`);
+  const body = encodeURIComponent(gerarResumoTexto());
+  window.location.href = `mailto:?subject=${subject}&body=${body}`;
+  document.getElementById('share_menu').classList.remove('open');
+}
+
+async function abrirHistorico() {
+  const keys = await storageList('drcury:orc:');
+  const body = document.getElementById('modal_historico_body');
+
+  if (!keys.length) {
+    body.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">⚜</div>
+        <p>Nenhum orçamento salvo ainda.<br>Use o botão "Salvar" depois de preencher um orçamento.</p>
+      </div>
+    `;
+  } else {
+    const orcs = [];
+    for (const k of keys) {
+      const o = await storageGet(k);
+      if (o) orcs.push({ key: k, ...o });
+    }
+    orcs.sort((a, b) => b.salvo_em.localeCompare(a.salvo_em));
+
+    let html = '';
+    for (const o of orcs) {
+      const data = new Date(o.salvo_em).toLocaleString('pt-BR');
+      html += `
+        <div class="history-item">
+          <div class="info">
+            <div class="nome">${o.paciente} — OR ${o.numero}</div>
+            <div class="meta">${o.tipo} · salvo em ${data}</div>
+          </div>
+          <div class="valor">${fmtMoeda(o.valor_10x || o.valor_cheio || o.subtotal || 0)}</div>
+          <div class="history-item-actions">
+            <button onclick="carregarOrcamento('${o.key}')" title="Carregar">↻</button>
+            <button class="danger" onclick="excluirOrcamento('${o.key}')" title="Excluir">🗑</button>
+          </div>
+        </div>
+      `;
+    }
+    body.innerHTML = html;
+  }
+
+  document.getElementById('modal_historico').classList.add('open');
+}
+
+async function carregarOrcamento(key) {
+  const o = await storageGet(key);
+  if (!o) return;
+
+  document.getElementById('numero_or').value = o.numero;
+  document.getElementById('data_emissao').value = o.data_emissao || hojeBR();
+  document.getElementById('paciente_nome').value = o.paciente;
+  document.getElementById('tipo_orcamento').value = o.tipo;
+  document.getElementById('cirurgiao').value = o.cirurgiao;
+  document.getElementById('consultor').value = o.consultor;
+  // Hospitais (compat com formato antigo)
+  if (o.hosp_vila_nova_star !== undefined) {
+    document.getElementById('hosp_vila_nova_star').checked = o.hosp_vila_nova_star;
+    document.getElementById('hosp_sao_luiz_itaim').checked = o.hosp_sao_luiz_itaim;
+  } else if (o.hospital) {
+    // Formato antigo: select único
+    document.getElementById('hosp_vila_nova_star').checked = (o.hospital === 'vila_nova_star');
+    document.getElementById('hosp_sao_luiz_itaim').checked = (o.hospital === 'sao_luiz_itaim');
+  }
+  PROCEDIMENTOS = [...(o.procedimentos || [])];
+
+  setModoDesconto(o.modo_desconto || 'manual');
+  if (o.modo_desconto === 'manual' && o.valor_avista_manual) {
+    setTimeout(() => {
+      const el = document.getElementById('valor_avista_manual');
+      if (el) el.value = o.valor_avista_manual;
+      atualizarPreview();
+    }, 50);
+  }
+
+  // Checkboxes (compat: se não existe parc_avista, default true)
+  document.getElementById('parc_avista').checked = o.parc_avista !== false;
+  document.getElementById('parc_3').checked = o.parc_3 !== false;
+  document.getElementById('parc_6').checked = o.parc_6 !== false;
+  document.getElementById('parc_10').checked = o.parc_10 !== false;
+
+  renderProcedimentos();
+  atualizarPreview();
+  fecharModal('modal_historico');
+  showToast(`✓ Orçamento OR ${o.numero} carregado`, 'success');
+}
+
+async function excluirOrcamento(key) {
+  if (!confirm('Excluir este orçamento do histórico? Não é possível desfazer.')) return;
+  await storageDelete(key);
+  abrirHistorico();
+  showToast('Orçamento excluído', '');
+}
+
+function abrirCatalogo() {
+  renderCatalogoModal();
+  document.getElementById('modal_catalogo').classList.add('open');
+}
+
+function renderCatalogoModal() {
+  const body = document.getElementById('catalogo_lista');
+  let html = '';
+  for (const [cat, lista] of Object.entries(CATALOGO)) {
+    html += `<div style="margin-bottom: 20px;">
+      <h4 style="font-family: var(--font-display); font-size: 16px; color: var(--dourado-escuro); margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--bege-medio);">${cat}</h4>`;
+    lista.forEach((nome, idx) => {
+      const nomeEsc = (nome || '').replace(/"/g, '&quot;');
+      html += `
+        <div style="display: grid; grid-template-columns: 1fr 30px; gap: 8px; align-items: center; padding: 6px 0;">
+          <input type="text" value="${nomeEsc}" oninput="editarItemCatalogo('${cat}', ${idx}, this.value)">
+          <button class="icon-btn" onclick="excluirItemCatalogo('${cat}', ${idx})" title="Excluir">✕</button>
+        </div>
+      `;
+    });
+    html += `</div>`;
+  }
+  body.innerHTML = html;
+}
+
+function editarItemCatalogo(cat, idx, novoNome) {
+  CATALOGO[cat][idx] = novoNome;
+  salvarCatalogo();
+  renderProcedimentos();
+}
+
+function excluirItemCatalogo(cat, idx) {
+  if (!confirm('Excluir este item do catálogo?')) return;
+  CATALOGO[cat].splice(idx, 1);
+  if (CATALOGO[cat].length === 0) delete CATALOGO[cat];
+  salvarCatalogo();
+  renderCatalogoModal();
+  renderProcedimentos();
+}
+
+function addItemCatalogo() {
+  const nome = prompt('Nome do procedimento:');
+  if (!nome) return;
+  const cat = prompt('Categoria (ex: Cirurgia, Pós-Operatório, Tecnologias, Drenagens):');
+  if (!cat) return;
+
+  if (!CATALOGO[cat]) CATALOGO[cat] = [];
+  if (!CATALOGO[cat].includes(nome)) {
+    CATALOGO[cat].push(nome);
+    salvarCatalogo();
+    renderCatalogoModal();
+    renderProcedimentos();
+    showToast(`✓ "${nome}" adicionado ao catálogo`, 'success');
+  } else {
+    showToast(`"${nome}" já existe nessa categoria`, 'error');
+  }
+}
+
+function fecharModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// ============================================================
+// CONFIGURAÇÃO DE TAXAS DE GROSS-UP
+// ============================================================
+async function abrirConfigTaxas() {
+  document.getElementById('taxa_parc_3').value = TAXAS_GROSSUP.parc_3;
+  document.getElementById('taxa_parc_6').value = TAXAS_GROSSUP.parc_6;
+  document.getElementById('taxa_parc_10').value = TAXAS_GROSSUP.parc_10;
+  atualizarPreviewTaxas();
+  document.getElementById('modal_taxas').classList.add('open');
+}
+
+function atualizarPreviewTaxas() {
+  document.getElementById('prev_t3').textContent = (parseFloat(document.getElementById('taxa_parc_3').value) || 0).toFixed(2).replace('.', ',');
+  document.getElementById('prev_t6').textContent = (parseFloat(document.getElementById('taxa_parc_6').value) || 0).toFixed(2).replace('.', ',');
+  document.getElementById('prev_t10').textContent = (parseFloat(document.getElementById('taxa_parc_10').value) || 0).toFixed(2).replace('.', ',');
+}
+
+async function onTaxaEditada() {
+  TAXAS_GROSSUP.parc_3 = parseFloat(document.getElementById('taxa_parc_3').value) || 0;
+  TAXAS_GROSSUP.parc_6 = parseFloat(document.getElementById('taxa_parc_6').value) || 0;
+  TAXAS_GROSSUP.parc_10 = parseFloat(document.getElementById('taxa_parc_10').value) || 0;
+  atualizarPreviewTaxas();
+  atualizarLabelsTaxas();
+  await storageSet('drcury:taxas', TAXAS_GROSSUP);
+  atualizarPreview();
+}
+
+function atualizarLabelsTaxas() {
+  // Atualiza labels +X,XX% nos cards de parcela
+  const lbl3 = document.getElementById('pct_label_3');
+  const lbl6 = document.getElementById('pct_label_6');
+  const lbl10 = document.getElementById('pct_label_10');
+  if (lbl3) lbl3.textContent = `+${TAXAS_GROSSUP.parc_3.toFixed(2).replace('.', ',')}%`;
+  if (lbl6) lbl6.textContent = `+${TAXAS_GROSSUP.parc_6.toFixed(2).replace('.', ',')}%`;
+  if (lbl10) lbl10.textContent = `+${TAXAS_GROSSUP.parc_10.toFixed(2).replace('.', ',')}%`;
+}
+
+async function restaurarTaxasPadrao() {
+  TAXAS_GROSSUP = {
+    parc_3: 5.97,
+    parc_6: 7.74,
+    parc_10: 10.50,
+  };
+  document.getElementById('taxa_parc_3').value = TAXAS_GROSSUP.parc_3;
+  document.getElementById('taxa_parc_6').value = TAXAS_GROSSUP.parc_6;
+  document.getElementById('taxa_parc_10').value = TAXAS_GROSSUP.parc_10;
+  await onTaxaEditada();
+  showToast('✓ Taxas restauradas para os valores padrão', 'success');
+}
+
+async function carregarTaxas() {
+  const salvo = await storageGet('drcury:taxas');
+  if (salvo && salvo.parc_3 !== undefined) {
+    TAXAS_GROSSUP = salvo;
+  }
+  atualizarLabelsTaxas();
+}
+
+function novoOrcamento() {
+  if (PROCEDIMENTOS.length > 0 && !confirm('Iniciar um novo orçamento? Os dados não salvos serão perdidos.')) return;
+  document.getElementById('numero_or').value = '';
+  document.getElementById('data_emissao').value = hojeBR();
+  document.getElementById('paciente_nome').value = '';
+  document.getElementById('hosp_vila_nova_star').checked = true;
+  document.getElementById('hosp_sao_luiz_itaim').checked = false;
+  PROCEDIMENTOS = [];
+  setModoDesconto('manual');
+  renderProcedimentos();
+  atualizarPreview();
+}
+
+(async function init() {
+  await carregarCatalogo();
+  await carregarTaxas();
+  carregarFormatoPDF();
+  document.getElementById('data_emissao').value = hojeBR();
+
+  // Aplicar logo no header de impressão (fixo no body)
+  document.getElementById('print_header_logo').src = LOGO_DATA_URI;
+
+  ['numero_or', 'paciente_nome'].forEach(id => {
+    document.getElementById(id).addEventListener('input', atualizarPreview);
+  });
+  // tipo_orcamento já tem onchange inline (onTipoOrcamentoMudou) - não adiciona listener duplicado
+  ['cirurgiao', 'consultor'].forEach(id => {
+    document.getElementById(id).addEventListener('change', atualizarPreview);
+  });
+
+  // Sincroniza MODO_POS_OP com o tipo já selecionado ao carregar (caso seja 'pos' por padrão)
+  onTipoOrcamentoMudou(document.getElementById('tipo_orcamento').value);
+
+  atualizarPreview();
+})();
+</script>
+</body>
+</html>
