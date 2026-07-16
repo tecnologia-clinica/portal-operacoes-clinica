@@ -166,7 +166,7 @@ function VisualizacaoRegistro({ metas, destaques, desafios, pendencias, proximos
         </div>
       </SecaoCard>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <BulletCard titulo="Destaques do mês" itens={destaques} cor="#15803D" />
         <BulletCard titulo="Desafios" itens={desafios} cor="#B91C1C" />
         <BulletCard titulo="Pendências" itens={pendencias} cor="#C8952A" />

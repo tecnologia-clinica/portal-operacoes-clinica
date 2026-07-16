@@ -30,18 +30,18 @@ export default function FormAcompanhamento({
         </p>
         <div className="space-y-3">
           {metas.map((m, i) => (
-            <div key={i} className="grid grid-cols-12 gap-2 items-center">
+            <div key={i} className="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:items-center">
               <input type="hidden" name="meta_label"   value={m.label}   />
               <input type="hidden" name="meta_meta"    value={m.meta}    />
               <input type="hidden" name="meta_unidade" value={m.unidade} />
               <input type="hidden" name="meta_fonte"   value={m.fonte}   />
 
-              <div className="col-span-4">
+              <div className="sm:col-span-4">
                 <p className="text-xs font-medium" style={{ color: "#2C1810" }}>{m.label}</p>
                 <p className="text-xs" style={{ color: "#B8A898" }}>Meta: {m.meta.toLocaleString("pt-BR")} {m.unidade} · {m.fonte}</p>
               </div>
 
-              <div className="col-span-3 flex items-center gap-1">
+              <div className="sm:col-span-3 flex items-center gap-1">
                 <input
                   type="number"
                   name="meta_real"
@@ -53,7 +53,7 @@ export default function FormAcompanhamento({
                 <span className="text-xs shrink-0" style={{ color: "#9A8570" }}>{m.unidade}</span>
               </div>
 
-              <div className="col-span-5">
+              <div className="sm:col-span-5">
                 {(() => {
                   const pct = m.meta > 0 ? Math.round((m.realizado / m.meta) * 100) : 0;
                   const cor = pct >= 90 ? "#15803D" : pct >= 70 ? "#C8952A" : "#B91C1C";
@@ -75,7 +75,7 @@ export default function FormAcompanhamento({
       </div>
 
       {/* Seções de texto */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <TextareaSecao name="destaques"     label="Destaques do mês"  placeholder="Uma conquista por linha..." defaultValue={destaques.join("\n")}     cor="#15803D" />
         <TextareaSecao name="desafios"      label="Desafios"          placeholder="Um desafio por linha..."   defaultValue={desafios.join("\n")}      cor="#B91C1C" />
         <TextareaSecao name="pendencias"    label="Pendências"        placeholder="Uma pendência por linha..." defaultValue={pendencias.join("\n")}    cor="#C8952A" />
@@ -98,7 +98,7 @@ export default function FormAcompanhamento({
       </div>
 
       {/* Ações */}
-      <div className="flex items-center gap-3 pt-1">
+      <div className="flex flex-wrap items-center gap-3 pt-1">
         <button
           type="submit"
           name="publicar"

@@ -94,6 +94,7 @@ export default async function DocumentosPage({
             Nenhum documento encontrado.
           </div>
         ) : (
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr style={{ borderBottom: "1px solid #F0E8DD", backgroundColor: "#FBF8F4" }}>
@@ -130,6 +131,7 @@ export default async function DocumentosPage({
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>

@@ -36,7 +36,7 @@ export default async function AdminPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div className="bg-white rounded-xl p-5" style={{ border: "1px solid #E8DDD0" }}>
           <p className="text-xs font-medium uppercase tracking-wide mb-1" style={{ color: "#9A8570" }}>Usuários</p>
           <p className="text-3xl font-semibold" style={{ color: "#2C1810" }}>{usuarios.length}</p>
@@ -59,6 +59,7 @@ export default async function AdminPage() {
         <div className="px-5 py-4" style={{ borderBottom: "1px solid #F0E8DD" }}>
           <h2 className="text-sm font-semibold" style={{ color: "#2C1810" }}>Usuários do portal</h2>
         </div>
+        <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr style={{ backgroundColor: "#FBF8F4" }}>
@@ -94,6 +95,7 @@ export default async function AdminPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

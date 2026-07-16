@@ -1,8 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import Sidebar from "@/components/layout/Sidebar";
-import Topbar from "@/components/layout/Topbar";
+import PortalShell from "@/components/layout/PortalShell";
 
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -22,12 +21,8 @@ export default async function PortalLayout({ children }: { children: React.React
   };
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar papel={usuario.papel} />
-      <div className="flex flex-col flex-1 overflow-hidden">
-        <Topbar user={user} />
-        <main className="flex-1 overflow-y-auto p-6" style={{ backgroundColor: "#F7F3EE" }}>{children}</main>
-      </div>
-    </div>
+    <PortalShell papel={usuario.papel} user={user}>
+      {children}
+    </PortalShell>
   );
 }

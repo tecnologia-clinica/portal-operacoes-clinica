@@ -37,7 +37,7 @@ export default async function AcompanhamentoListaPage() {
         </span>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {MESES.map((nome, idx) => {
           const mes = idx + 1;
           const slug = `${ANO}-${String(mes).padStart(2, "0")}`;

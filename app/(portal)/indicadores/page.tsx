@@ -85,10 +85,10 @@ function TabComercial({ db }: { db: { mes: number; ano: number; dados: DadosMetr
       {temDB
         ? <BannerDados setor="comercial" mes={db!.mes} ano={db!.ano} dados={d} />
         : <BannerSemDados setor="comercial" />}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
         {kpis.map((k) => <KPICard key={k.label} {...k} />)}
       </div>
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         <div className="col-span-3">
           <Suspense fallback={<Placeholder h={240} />}>
             <GraficoLeads />
@@ -148,10 +148,10 @@ function TabMarketing({ db }: { db: { mes: number; ano: number; dados: DadosMetr
       {temDB
         ? <BannerDados setor="marketing" mes={db!.mes} ano={db!.ano} dados={d} />
         : <BannerSemDados setor="marketing" />}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
         {kpis.map((k) => <KPICard key={k.label} {...k} />)}
       </div>
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         <div className="col-span-3 bg-white rounded-xl p-4" style={{ border: "1px solid #E8DDD0" }}>
           <p className="text-sm font-semibold mb-1" style={{ color: "#2C1810" }}>Mix de investimento</p>
           <p className="text-xs mb-4" style={{ color: "#9A8570" }}>Maio 2026 · 22 dias · dados parciais</p>
@@ -219,7 +219,7 @@ function TabClinico({ db }: { db: { mes: number; ano: number; dados: DadosMetric
       {temDB
         ? <BannerDados setor="clinico" mes={db!.mes} ano={db!.ano} dados={d} />
         : <BannerSemDados setor="clinico" />}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
         {kpis.map((k) => <KPICard key={k.label} {...k} />)}
       </div>
       <Suspense fallback={<Placeholder h={240} />}>
@@ -260,7 +260,7 @@ function TabAtendimento({ db }: { db: { mes: number; ano: number; dados: DadosMe
       {temDB
         ? <BannerDados setor="atendimento" mes={db!.mes} ano={db!.ano} dados={d} />
         : <BannerSemDados setor="atendimento" />}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
         {kpis.map((k) => <KPICard key={k.label} {...k} />)}
       </div>
       <div className="bg-white rounded-xl p-4" style={{ border: "1px solid #E8DDD0" }}>
@@ -316,7 +316,7 @@ function TabExperiencia({ db }: { db: { mes: number; ano: number; dados: DadosMe
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
         {metricas.map((m) => (
           <div key={m.label} className="bg-white rounded-xl p-4" style={{ border: "1px solid #E8DDD0" }}>
             <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: "#9A8570" }}>{m.label}</p>
@@ -328,7 +328,7 @@ function TabExperiencia({ db }: { db: { mes: number; ano: number; dados: DadosMe
       </div>
       <div className="bg-white rounded-xl p-4" style={{ border: "1px solid #E8DDD0" }}>
         <p className="text-sm font-semibold mb-3" style={{ color: "#2C1810" }}>Como implementar</p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {[
             { step: "1", titulo: "NPS pós-cirurgia", desc: "Envio automático via WhatsApp 30 dias após cirurgia — Google Forms + planilha de consolidação" },
             { step: "2", titulo: "Protocolo pós-op no CRM", desc: "Campo de 'Retorno pós-op confirmado' na pipeline do Kommo, com tarefa automática" },
@@ -391,7 +391,7 @@ function TabFinanceiro({ db }: { db: { mes: number; ano: number; dados: DadosMet
       {/* Bloco consultas */}
       <div>
         <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "#9A8570" }}>Consultas</p>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
           {kpisConsultas.map((k) => <KPICard key={k.label} {...k} delta={null} />)}
         </div>
       </div>
@@ -399,7 +399,7 @@ function TabFinanceiro({ db }: { db: { mes: number; ano: number; dados: DadosMet
       {/* Bloco cirurgias */}
       <div>
         <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "#9A8570" }}>Cirurgias</p>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
           {kpisCirurgias.map((k) => <KPICard key={k.label} {...k} delta={null} />)}
         </div>
       </div>
@@ -407,13 +407,13 @@ function TabFinanceiro({ db }: { db: { mes: number; ano: number; dados: DadosMet
       {/* Bloco receita */}
       <div>
         <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "#9A8570" }}>Receita</p>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
           {kpisReceita.map((k) => <KPICard key={k.label} {...k} delta={null} />)}
         </div>
       </div>
 
       {/* Resumo calculado */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="bg-white rounded-xl p-4" style={{ border: "1px solid #E8DDD0" }}>
           <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "#9A8570" }}>Conversão consulta → cirurgia</p>
           <p className="text-3xl font-bold" style={{ color: txConv === "—" ? "#9A8570" : "#2C1810" }}>{txConv}</p>
@@ -445,7 +445,7 @@ function TabFinanceiro({ db }: { db: { mes: number; ano: number; dados: DadosMet
 function TabGeral({ dadosPorSetor }: { dadosPorSetor: Record<string, { mes: number; ano: number; dados: DadosMetrica } | null> }) {
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {SAUDE_SETORES.map((s) => {
           const cor = STATUS_COR[s.status];
           return (
@@ -462,12 +462,12 @@ function TabGeral({ dadosPorSetor }: { dadosPorSetor: Record<string, { mes: numb
         })}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Suspense fallback={<Placeholder h={240} />}><GraficoLeads /></Suspense>
         <Suspense fallback={<Placeholder h={240} />}><GraficoClinico /></Suspense>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
         <AlertaCard
           titulo="Atendimento crítico"
           texto="70h de maior espera sem atendimento e 0 tarefas de follow-up cadastradas."
@@ -592,7 +592,7 @@ function KPIsDB({ dados, campos }: {
   campos: { chave: string; label: string; meta?: string; formato?: (v: number) => string; critico?: (v: number) => boolean }[];
 }) {
   return (
-    <div className="grid grid-cols-3 gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
       {campos.map((c) => {
         const val = dados[c.chave];
         if (val === undefined && !dados.hasOwnProperty(c.chave)) return null;

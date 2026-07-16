@@ -56,7 +56,7 @@ export default function FormNovoUsuario({ setores }: { setores: Setor[] }) {
             </button>
           </div>
 
-          <form ref={formRef} action={handleSubmit} className="grid grid-cols-2 gap-3">
+          <form ref={formRef} action={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium mb-1" style={{ color: "#6B5744" }}>Nome *</label>
               <input

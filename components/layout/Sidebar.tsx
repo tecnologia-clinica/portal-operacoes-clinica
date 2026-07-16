@@ -13,7 +13,11 @@ const SETORES = [
   { nome: "Pós-operatório", slug: "pos-operatorio" },
 ];
 
-export default function Sidebar({ papel }: { papel: string }) {
+export default function Sidebar({
+  papel, open, onNavigate,
+}: {
+  papel: string; open: boolean; onNavigate: () => void;
+}) {
   const pathname = usePathname();
   const isAdmin     = podeAdmin(papel);
   const isGeral     = papel === "GERAL";
@@ -34,7 +38,12 @@ export default function Sidebar({ papel }: { papel: string }) {
 
   return (
     <aside
-      className="w-60 flex-shrink-0 flex flex-col h-full"
+      className={[
+        "fixed md:static left-0 top-14 md:top-0 bottom-0 z-40",
+        "w-60 flex-shrink-0 flex flex-col md:h-full",
+        "transform transition-transform duration-200 md:translate-x-0",
+        open ? "translate-x-0" : "-translate-x-full",
+      ].join(" ")}
       style={{ backgroundColor: "#F8F4EE", borderRight: "1px solid #E8DDD0" }}
     >
       {/* Logo */}
@@ -48,7 +57,7 @@ export default function Sidebar({ papel }: { papel: string }) {
         />
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto" onClick={onNavigate}>
 
         {/* Painel — só ADMIN e GERAL */}
         {(isAdmin || isGeral) && (

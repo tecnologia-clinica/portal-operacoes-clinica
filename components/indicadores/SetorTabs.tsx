@@ -25,14 +25,14 @@ export default function SetorTabs({ ativo, permitidas }: { ativo: string; permit
   }
 
   return (
-    <div className="flex gap-1 p-1 rounded-xl" style={{ backgroundColor: "#F0E8DD" }}>
+    <div className="flex gap-1 p-1 rounded-xl overflow-x-auto" style={{ backgroundColor: "#F0E8DD" }}>
       {tabs.map((t) => {
         const ativo_ = t.id === ativo;
         return (
           <button
             key={t.id}
             onClick={() => navegar(t.id)}
-            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0"
             style={{
               backgroundColor: ativo_ ? "#fff" : "transparent",
               color: ativo_ ? "#2C1810" : "#9A8570",

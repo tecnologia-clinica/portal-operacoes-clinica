@@ -40,7 +40,7 @@ export default async function ImportarMetricasPage() {
       </div>
 
       {/* Instruções */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
           { n: "1", titulo: "Baixe o template",    desc: "Escolha o setor e o mês, depois clique em Baixar Template" },
           { n: "2", titulo: "Preencha os valores",  desc: "Abra no Excel ou Google Sheets, preencha os números e salve como .csv" },
@@ -72,6 +72,7 @@ export default async function ImportarMetricasPage() {
           <div className="px-5 py-4" style={{ borderBottom: "1px solid #F0E8DD" }}>
             <h2 className="text-sm font-semibold" style={{ color: "#2C1810" }}>Histórico de importações</h2>
           </div>
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr style={{ backgroundColor: "#FBF8F4" }}>
@@ -108,6 +109,7 @@ export default async function ImportarMetricasPage() {
               })}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

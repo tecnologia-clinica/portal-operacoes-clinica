@@ -36,7 +36,7 @@ export default async function PainelPage() {
       </div>
 
       {/* ── KPI cards ── */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
         {/* Card destaque — Leads junho (dado completo via Kommo 30/06) */}
         <div
@@ -78,7 +78,7 @@ export default async function PainelPage() {
       </div>
 
       {/* ── Linha principal: gráfico + painel direito ── */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
         {/* Gráfico de evolução */}
         <div className="col-span-2">

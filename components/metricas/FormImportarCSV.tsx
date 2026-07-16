@@ -261,7 +261,7 @@ export default function FormImportarCSV({
   return (
     <form ref={formRef} action={handleSubmit} className="space-y-5">
       {/* Setor + Período */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
           <label className={labelCls} style={labelStyle}>Setor *</label>
           <select
@@ -345,7 +345,7 @@ export default function FormImportarCSV({
           {preview.length === 0 ? (
             <p className="text-xs" style={{ color: "#B91C1C" }}>Nenhuma linha válida encontrada no arquivo.</p>
           ) : (
-            <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #E8DDD0" }}>
+            <div className="rounded-xl overflow-hidden overflow-x-auto" style={{ border: "1px solid #E8DDD0" }}>
               <table className="w-full text-xs">
                 <thead>
                   <tr style={{ backgroundColor: "#FBF8F4" }}>
