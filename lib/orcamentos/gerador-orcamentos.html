@@ -402,14 +402,27 @@
 
   .picker-row {
     display: grid;
-    grid-template-columns: 200px 1fr 80px 130px 40px;
-    gap: 12px;
+    grid-template-columns: 170px 1fr 105px 60px 105px 112px 40px;
+    gap: 10px;
     align-items: center;
     padding: 10px 0;
     border-bottom: 1px solid rgba(0,0,0,0.04);
   }
 
   .picker-row:last-child { border-bottom: none; }
+
+  /* Célula de desconto no formulário: input + percentual calculado embaixo */
+  .desc-cell { display: flex; flex-direction: column; gap: 2px; }
+  .desc-cell input { width: 100%; }
+  .desc-cell .desc-cell-pct {
+    font-size: 10px;
+    color: var(--cinza-medio);
+    line-height: 1.2;
+    min-height: 12px;
+    padding-left: 2px;
+  }
+  .desc-cell .desc-cell-pct.neg { color: var(--erro); }
+  .desc-cell .desc-cell-pct.pos { color: #1E8E3E; }
 
   /* Linha de prótese mamária (aparece sob o procedimento de mama) */
   .protese-row {
@@ -1318,6 +1331,39 @@
   }
   .proc-table .ptt-qtd { text-align: center; width: 60px; }
   .proc-table .ptt-val { text-align: right; width: 120px; white-space: nowrap; }
+  /* Colunas extras (valor de tabela / desconto) — só existem quando o checkbox está ligado */
+  .proc-table.com-desc { font-size: 10.5px; }
+  .proc-table.com-desc th,
+  .proc-table.com-desc td { padding: 6px 7px; }
+  .proc-table .ptt-tab { text-align: right; width: 105px; white-space: nowrap; color: var(--cinza-medio); }
+  .proc-table .ptt-desc { text-align: right; width: 95px; white-space: nowrap; }
+  .proc-table .desc-valor { display: block; font-weight: 600; }
+  .proc-table .desc-valor.neg { color: var(--erro); }
+  .proc-table .desc-valor.pos { color: #1E8E3E; }
+  .proc-table .desc-pct { display: block; font-size: 9px; color: var(--cinza-medio); }
+
+  /* Caixa de totais de tabela/desconto (espelha o OR do sistema antigo) */
+  .totais-desc {
+    margin: 10px 0 0 auto;
+    width: 320px;
+    border: 1px solid var(--cinza-claro);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+  .totais-desc .td-linha {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    padding: 3px 0;
+  }
+  .totais-desc .td-label { color: var(--cinza-escuro); }
+  .totais-desc .td-pct { color: var(--cinza-medio); font-size: 10px; margin-left: auto; }
+  .totais-desc .td-valor { min-width: 95px; text-align: right; white-space: nowrap; }
+  .totais-desc .td-linha.total { border-top: 1px solid var(--cinza-claro); margin-top: 4px; padding-top: 6px; font-weight: 600; }
+  .totais-desc .td-valor.neg { color: var(--erro); }
+  .totais-desc .td-valor.pos { color: #1E8E3E; }
   .proc-table tfoot td {
     border-top: 1.5px solid var(--cinza-claro);
     border-bottom: none;
@@ -1739,6 +1785,8 @@
     .protese-bloco,
     .aviso-box,
     .proc-table th,
+    .proc-table .desc-valor,
+    .totais-desc .td-valor,
     .paciente-cirurgiao-block,
     .print-header,
     .print-footer {
@@ -1867,7 +1915,7 @@
       <span class="badge" id="badge_count">0 itens</span>
     </div>
     <p class="help-text" style="margin-bottom: 12px;">
-      Selecione o procedimento na lista suspensa (ou adicione um novo) e <strong>digite o valor à vista negociado</strong>. Os acréscimos de cartão são aplicados automaticamente apenas no parcelamento.
+      Selecione o procedimento na lista suspensa (ou adicione um novo), informe o <strong>valor de tabela</strong> e o <strong>valor negociado</strong>. O desconto é calculado sozinho — e se preferir digitar o desconto direto, o valor negociado se ajusta. Use sinal negativo para desconto e positivo para acréscimo. Os acréscimos de cartão são aplicados automaticamente apenas no parcelamento.
     </p>
 
     <!-- Opções globais do orçamento -->
@@ -1875,6 +1923,10 @@
       <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 13px; color: var(--cinza-escuro);" id="lbl_mostrar_valores">
         <input type="checkbox" id="chk_mostrar_valores" onchange="toggleMostrarValores(this.checked)">
         <span><strong>Mostrar valores unitários</strong> na tabela de procedimentos do PDF</span>
+      </label>
+      <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 13px; color: var(--cinza-escuro);" id="lbl_mostrar_tabela_desc">
+        <input type="checkbox" id="chk_mostrar_tabela_desc" onchange="toggleMostrarTabelaDesc(this.checked)">
+        <span><strong>Mostrar valor de tabela e desconto</strong> por procedimento (colunas Val. tab., Desc. e Subtotal)</span>
       </label>
       <div id="info_modo_pos_op" style="display: none; padding: 8px 10px; background: rgba(184, 153, 104, 0.15); border-left: 3px solid var(--dourado); border-radius: 4px; font-size: 12px; color: var(--cinza-escuro);">
         💡 <strong>Modo Pós-Operatório ativo</strong> — Equipe Médica e Custos Hospitalares serão ocultados do PDF (configurado em "Tipo de Orçamento").
@@ -2192,6 +2244,7 @@ let PROCEDIMENTOS = [];
 let METODO_TITULO = 'MÉTODO DR. JOSÉ CURY - 01';
 let FORMATO_PDF = 'a4'; // 'a4' ou 'a3'
 let MOSTRAR_VALORES = false; // mostrar valor unitário na tabela de procedimentos
+let MOSTRAR_TABELA_DESC = false; // mostrar colunas Val. tab. / Desc. / Subtotal por procedimento
 let MODO_POS_OP = false; // orçamento de pós-operatório (oculta equipe médica e custos hospitalares)
 
 // Itens padrão do Kit Pós-Operatório (Dr. seleciona quais incluir no orçamento)
@@ -2325,9 +2378,39 @@ function buildOptionsCatalogo(selectedNome = '') {
 }
 
 function adicionarProcedimento(nome = '', qtd = 1, valor = 0, categoria = '') {
-  PROCEDIMENTOS.push({ nome, qtd, valor, categoria });
+  PROCEDIMENTOS.push({ nome, qtd, valor, categoria, valor_tabela: valor });
   renderProcedimentos();
   atualizarPreview();
+}
+
+// ============================================================
+// VALOR DE TABELA x VALOR NEGOCIADO x DESCONTO (cálculo por linha)
+//
+// Modelo de dados por procedimento:
+//   valor_tabela → preço unitário de tabela (o "Val. tab." do OR)
+//   valor        → preço unitário efetivamente negociado (fonte da verdade do total)
+// O desconto NÃO é armazenado: é sempre derivado de (negociado − tabela), assim
+// nunca dá pra ter os três campos em desacordo. Editar o desconto na UI apenas
+// reescreve o `valor`.
+//
+// Compatibilidade: orçamentos antigos não têm `valor_tabela`. Nesse caso a tabela
+// é tratada como igual ao negociado, ou seja, desconto zero.
+// ============================================================
+function calcLinha(p) {
+  const qtd = parseInt(p.qtd) || 0;
+  const unitNeg = parseFloat(p.valor) || 0;
+  const vt = parseFloat(p.valor_tabela);
+  const unitTab = (isFinite(vt) && vt > 0) ? vt : unitNeg;
+  const bruto = unitTab * qtd;      // total pelo preço de tabela
+  const liquido = unitNeg * qtd;    // total negociado (o que entra no orçamento)
+  const desconto = liquido - bruto; // negativo = desconto, positivo = acréscimo
+  // Percentual só faz sentido pra desconto; acréscimo aparece como 0,00% (igual ao OR de origem)
+  const pct = (bruto > 0 && desconto < 0) ? (Math.abs(desconto) / bruto) * 100 : 0;
+  return { qtd, unitTab, unitNeg, bruto, liquido, desconto, pct };
+}
+
+function fmtPct(v) {
+  return v.toFixed(2).replace('.', ',') + '%';
 }
 
 function removerProcedimento(idx) {
@@ -2349,16 +2432,60 @@ function debounce(key, fn, delay = 600) {
 // Salva o dado IMEDIATAMENTE (não perde nenhum digitado), mas atualiza o preview
 // só depois que parar de digitar por 600ms. Evita lag e perda de foco no mobile.
 function onProcInputDebounce(idx, campo, valor) {
+  const p = PROCEDIMENTOS[idx];
   // Salva imediato no array (sem disparar render)
   if (campo === 'qtd') {
-    PROCEDIMENTOS[idx].qtd = parseInt(valor) || 1;
+    p.qtd = parseInt(valor) || 1;
   } else if (campo === 'valor') {
-    PROCEDIMENTOS[idx].valor = parseFloat(valor) || 0;
+    p.valor = parseFloat(valor) || 0;
+  } else if (campo === 'valor_tabela') {
+    const antes = calcLinha(p);
+    const novoTab = parseFloat(valor) || 0;
+    // Se a linha ainda não tinha desconto (ou nem tinha valor), o negociado acompanha
+    // a tabela. Se já havia desconto negociado, preserva o negociado e só o desconto muda.
+    const semDesconto = (antes.desconto === 0) || (antes.unitNeg === 0);
+    p.valor_tabela = novoTab;
+    if (semDesconto) p.valor = novoTab;
+  } else if (campo === 'desconto') {
+    // Desconto digitado é o total da linha, COM sinal (negativo = desconto, positivo = acréscimo).
+    // Reescreve o valor negociado unitário; o desconto em si nunca é armazenado.
+    const qtd = parseInt(p.qtd) || 1;
+    const vt = parseFloat(p.valor_tabela);
+    const unitTab = (isFinite(vt) && vt > 0) ? vt : (parseFloat(p.valor) || 0);
+    const desc = parseFloat(valor) || 0;
+    p.valor_tabela = unitTab;
+    p.valor = Math.max(0, unitTab + desc / qtd);
   } else if (campo === 'valor_protese') {
-    PROCEDIMENTOS[idx].valor_protese = parseFloat(valor) || 0;
+    p.valor_protese = parseFloat(valor) || 0;
   }
+  // Reflete o efeito nos campos irmãos na hora (sem re-render, pra não perder o foco)
+  sincronizarLinhaDOM(idx, campo);
   // Atualiza preview com debounce (só roda quando para de digitar)
   debounce(`proc_${idx}_${campo}`, () => atualizarPreview(), 600);
+}
+
+// Reescreve os inputs derivados da linha sem re-renderizar (preserva foco e cursor).
+// `exceto` é o campo que a pessoa está digitando agora — esse não pode ser tocado.
+function sincronizarLinhaDOM(idx, exceto) {
+  const p = PROCEDIMENTOS[idx];
+  if (!p) return;
+  const l = calcLinha(p);
+  const set = (sufixo, v) => {
+    if (exceto === sufixo) return;
+    const el = document.getElementById(`proc_${idx}_${sufixo}`);
+    if (el && el !== document.activeElement) el.value = v;
+  };
+  set('valor_tabela', l.unitTab || '');
+  set('valor', l.unitNeg || '');
+  set('desconto', l.desconto ? l.desconto.toFixed(2) : '');
+
+  const pctEl = document.getElementById(`proc_${idx}_pct`);
+  if (pctEl) {
+    pctEl.className = 'desc-cell-pct' + (l.desconto < 0 ? ' neg' : l.desconto > 0 ? ' pos' : '');
+    pctEl.textContent = l.desconto < 0 ? `−${fmtPct(l.pct)} de desconto`
+                      : l.desconto > 0 ? 'acréscimo'
+                      : '';
+  }
 }
 
 function atualizarProcedimento(idx, campo, valor) {
@@ -2395,8 +2522,10 @@ function atualizarProcedimento(idx, campo, valor) {
   } else if (campo === 'qtd') {
     // Apenas atualiza dado, NÃO re-renderiza (preserva foco do input)
     PROCEDIMENTOS[idx].qtd = parseInt(valor) || 1;
-  } else if (campo === 'valor') {
-    PROCEDIMENTOS[idx].valor = parseFloat(valor) || 0;
+  } else if (campo === 'valor' || campo === 'valor_tabela' || campo === 'desconto') {
+    // Mesma lógica de sincronia usada pelos inputs da linha (sem o debounce do preview)
+    onProcInputDebounce(idx, campo, valor);
+    return;
   } else if (campo === 'nome_livre') {
     PROCEDIMENTOS[idx].nome = valor;
     // Re-renderiza para mostrar/esconder o checkbox de prótese se o nome agora contém 'mama'
@@ -2436,15 +2565,25 @@ function renderProcedimentos() {
     const ehPosOp = /kit|drenagem|pós[-\s]?op|pos[-\s]?op|sess[ãa]o|protocolo|cinta|placa.*conten|meia.*trombo|diprospan/.test(nomeLower)
                  || /pós[-\s]?op|pos[-\s]?op/.test(catLower);
     // onchange (não oninput) no nome livre evita re-render durante digitação;
-    // qtd e valor usam oninput mas SEM disparar render (só dado + preview)
+    // qtd, valores e desconto usam oninput mas SEM disparar render (só dado + preview)
+    const l = calcLinha(proc);
+    const pctClasse = l.desconto < 0 ? ' neg' : l.desconto > 0 ? ' pos' : '';
+    const pctTexto = l.desconto < 0 ? `−${fmtPct(l.pct)} de desconto`
+                   : l.desconto > 0 ? 'acréscimo'
+                   : '';
     html += `
       <div class="picker-row">
         <select onchange="atualizarProcedimento(${idx}, 'nome', this.value)" aria-label="Selecionar procedimento">
           ${buildOptionsCatalogo(proc.nome)}
         </select>
         <input type="text" placeholder="Nome do procedimento" value="${nomeEsc}" onchange="atualizarProcedimento(${idx}, 'nome_livre', this.value)" aria-label="Nome do procedimento">
+        <input type="number" id="proc_${idx}_valor_tabela" inputmode="decimal" min="0" step="0.01" value="${l.unitTab || ''}" oninput="onProcInputDebounce(${idx}, 'valor_tabela', this.value)" placeholder="Val. tabela (R$)" title="Valor de tabela (cheio) do procedimento" aria-label="Valor de tabela em reais">
         <input type="number" inputmode="numeric" min="1" value="${proc.qtd}" oninput="onProcInputDebounce(${idx}, 'qtd', this.value)" placeholder="Qtd" aria-label="Quantidade">
-        <input type="number" inputmode="decimal" min="0" step="0.01" value="${proc.valor}" oninput="onProcInputDebounce(${idx}, 'valor', this.value)" placeholder="Valor (R$)" aria-label="Valor em reais">
+        <input type="number" id="proc_${idx}_valor" inputmode="decimal" min="0" step="0.01" value="${l.unitNeg || ''}" oninput="onProcInputDebounce(${idx}, 'valor', this.value)" placeholder="Valor negoc. (R$)" title="Valor unitário negociado — é ele que entra no total do orçamento" aria-label="Valor negociado em reais">
+        <div class="desc-cell">
+          <input type="number" id="proc_${idx}_desconto" inputmode="decimal" step="0.01" value="${l.desconto ? l.desconto.toFixed(2) : ''}" oninput="onProcInputDebounce(${idx}, 'desconto', this.value)" placeholder="Desc. (R$)" title="Desconto da linha com sinal: negativo abate, positivo acresce" aria-label="Desconto em reais">
+          <span class="desc-cell-pct${pctClasse}" id="proc_${idx}_pct">${pctTexto}</span>
+        </div>
         <button class="icon-btn" onclick="removerProcedimento(${idx})" title="Remover" aria-label="Remover este procedimento">✕ Remover</button>
       </div>
     `;
@@ -2537,6 +2676,13 @@ function calcular() {
   // Mantém propriedades antigas para compatibilidade
   const subtotal = valorLiquido;
 
+  // Totais de tabela x negociado (usados nas colunas Val. tab. / Desc. / Subtotal)
+  const totalTabela = PROCEDIMENTOS.reduce((s, p) => s + calcLinha(p).bruto, 0);
+  const totalDescontos = valorLiquido - totalTabela; // negativo = desconto, positivo = acréscimo
+  const pctDescontos = (totalTabela > 0 && totalDescontos < 0)
+    ? (Math.abs(totalDescontos) / totalTabela) * 100
+    : 0;
+
   return {
     subtotal,
     valorLiquido,
@@ -2545,6 +2691,9 @@ function calcular() {
     valor3x,
     valorAvista,
     economia: valor10x - valorAvista,
+    totalTabela,
+    totalDescontos,
+    pctDescontos,
   };
 }
 
@@ -2633,6 +2782,25 @@ function fecharModalKit(salvar) {
 
 function toggleMostrarValores(checked) {
   MOSTRAR_VALORES = checked;
+  // Sem a coluna de valor, mostrar tabela/desconto não faz sentido — desliga junto
+  if (!checked && MOSTRAR_TABELA_DESC) {
+    MOSTRAR_TABELA_DESC = false;
+    const chk = document.getElementById('chk_mostrar_tabela_desc');
+    if (chk) chk.checked = false;
+  }
+  atualizarPreview();
+}
+
+// Liga/desliga as colunas Val. tab., Desc. e Subtotal no PDF.
+// Os campos continuam editáveis no formulário mesmo com o checkbox desligado —
+// o toggle controla só o que a paciente enxerga.
+function toggleMostrarTabelaDesc(checked) {
+  MOSTRAR_TABELA_DESC = checked;
+  if (checked && !MOSTRAR_VALORES) {
+    MOSTRAR_VALORES = true;
+    const chk = document.getElementById('chk_mostrar_valores');
+    if (chk) chk.checked = true;
+  }
   atualizarPreview();
 }
 
@@ -2757,31 +2925,77 @@ function atualizarPreview() {
   // ============================================================
   const algumComKitPos = PROCEDIMENTOS.some(p => p.inclui_kit_pos);
   const mostrarColValor = (MOSTRAR_VALORES || MODO_POS_OP) && !algumComKitPos;
+  // Colunas Val. tab. / Desc. / Subtotal dependem do checkbox próprio E da coluna de valor
+  const mostrarTabDesc = MOSTRAR_TABELA_DESC && mostrarColValor;
 
   html += `
     <div class="section-numbered">
       <div class="sn-header">1. PROCEDIMENTOS CIRÚRGICOS</div>
-      <table class="proc-table">
+      <table class="proc-table${mostrarTabDesc ? ' com-desc' : ''}">
         <thead>
           <tr>
             <th><span contenteditable="true" id="metodo_titulo" oninput="onMetodoEditado(this.textContent)" style="outline: none;">${METODO_TITULO}</span></th>
+            ${mostrarTabDesc ? '<th class="ptt-tab">VAL. TAB. (R$)</th>' : ''}
             <th class="ptt-qtd">QTD.</th>
             ${mostrarColValor ? '<th class="ptt-val">VALOR (R$)</th>' : ''}
+            ${mostrarTabDesc ? '<th class="ptt-desc">DESC.</th><th class="ptt-val">SUBTOTAL (R$)</th>' : ''}
           </tr>
         </thead>
         <tbody>
   `;
   for (const p of PROCEDIMENTOS) {
-    const subtotal = (parseFloat(p.valor) || 0) * (parseInt(p.qtd) || 0);
+    const l = calcLinha(p);
+    // Com as colunas de desconto, VALOR é o bruto de tabela e SUBTOTAL é o negociado.
+    // Sem elas, VALOR continua sendo o negociado (comportamento antigo do PDF).
+    const valorExibido = mostrarTabDesc ? l.bruto : l.liquido;
+    let celulaDesc = '';
+    if (mostrarTabDesc) {
+      if (l.desconto === 0) {
+        celulaDesc = '<td class="ptt-desc"><span style="color:var(--cinza-medio);">—</span></td>';
+      } else {
+        const sinal = l.desconto > 0 ? '+' : '−';
+        celulaDesc = `<td class="ptt-desc">
+          <span class="desc-valor ${l.desconto < 0 ? 'neg' : 'pos'}">${sinal}${fmtMoeda(Math.abs(l.desconto))}</span>
+          <span class="desc-pct">${fmtPct(l.pct)}</span>
+        </td>`;
+      }
+    }
     html += `<tr>
       <td>${p.nome || '<em style="color:var(--cinza-medio);">— preencher —</em>'}</td>
+      ${mostrarTabDesc ? `<td class="ptt-tab">${l.unitTab > 0 ? fmtMoeda(l.unitTab) : '<span style="color:var(--cinza-medio);">—</span>'}</td>` : ''}
       <td class="ptt-qtd">${p.qtd}</td>
-      ${mostrarColValor ? `<td class="ptt-val">${subtotal > 0 ? fmtMoeda(subtotal) : '<span style="color:var(--cinza-medio);">—</span>'}</td>` : ''}
+      ${mostrarColValor ? `<td class="ptt-val">${valorExibido > 0 ? fmtMoeda(valorExibido) : '<span style="color:var(--cinza-medio);">—</span>'}</td>` : ''}
+      ${celulaDesc}
+      ${mostrarTabDesc ? `<td class="ptt-val">${fmtMoeda(l.liquido)}</td>` : ''}
     </tr>`;
   }
   html += `
         </tbody>
       </table>
+  `;
+  // Caixa de fechamento: total de tabela → descontos → total dos procedimentos
+  if (mostrarTabDesc) {
+    const temAjuste = Math.abs(calc.totalDescontos) > 0.005;
+    html += `
+      <div class="totais-desc">
+        <div class="td-linha">
+          <span class="td-label">Total de tabela</span>
+          <span class="td-valor">${fmtMoeda(calc.totalTabela)}</span>
+        </div>
+        ${temAjuste ? `
+        <div class="td-linha">
+          <span class="td-label">${calc.totalDescontos < 0 ? 'Descontos procedimentos' : 'Acréscimos procedimentos'}</span>
+          <span class="td-pct">${calc.totalDescontos < 0 ? fmtPct(calc.pctDescontos) : ''}</span>
+          <span class="td-valor ${calc.totalDescontos < 0 ? 'neg' : 'pos'}">${calc.totalDescontos < 0 ? '−' : '+'}${fmtMoeda(Math.abs(calc.totalDescontos))}</span>
+        </div>` : ''}
+        <div class="td-linha total">
+          <span class="td-label">Total dos procedimentos</span>
+          <span class="td-valor">${fmtMoeda(calc.valorLiquido)}</span>
+        </div>
+      </div>
+    `;
+  }
+  html += `
     </div>
   `;
 
@@ -3088,6 +3302,10 @@ async function salvarOrcamento() {
     hosp_sao_luiz_itaim: document.getElementById('hosp_sao_luiz_itaim').checked,
     procedimentos: [...PROCEDIMENTOS],
     valor_liquido: calc.valorLiquido,
+    total_tabela: calc.totalTabela,
+    total_descontos: calc.totalDescontos,
+    mostrar_valores: MOSTRAR_VALORES,
+    mostrar_tabela_desc: MOSTRAR_TABELA_DESC,
     modo_desconto: MODO_DESCONTO,
     valor_avista_manual: document.getElementById('valor_avista_manual')?.value,
     parc_avista: document.getElementById('parc_avista').checked,
@@ -3274,6 +3492,14 @@ async function carregarOrcamento(key) {
     document.getElementById('hosp_sao_luiz_itaim').checked = (o.hospital === 'sao_luiz_itaim');
   }
   PROCEDIMENTOS = [...(o.procedimentos || [])];
+
+  // Toggles de exibição (orçamentos antigos não têm esses campos → ficam desligados)
+  MOSTRAR_VALORES = !!o.mostrar_valores;
+  MOSTRAR_TABELA_DESC = !!o.mostrar_tabela_desc;
+  const chkVal = document.getElementById('chk_mostrar_valores');
+  if (chkVal) chkVal.checked = MOSTRAR_VALORES;
+  const chkTab = document.getElementById('chk_mostrar_tabela_desc');
+  if (chkTab) chkTab.checked = MOSTRAR_TABELA_DESC;
 
   setModoDesconto(o.modo_desconto || 'manual');
   if (o.modo_desconto === 'manual' && o.valor_avista_manual) {
